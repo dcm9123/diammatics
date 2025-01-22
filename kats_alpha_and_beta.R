@@ -22,7 +22,7 @@ asv_matrix
 taxa_table = read.csv("kats_taxa_table.csv")                                    #Reading the modified file for taxonomy assignment per asv
 taxa_matrix = as.matrix(taxa_table)
 taxa_matrix = tax_table(taxa_matrix)
-metadata = read.csv("kats_metadata_followup_cst.csv", row.names = 1)
+metadata = read.csv("kats_metadata_cst_baseline.csv", row.names = 1)
 metadata
 #Establishing ps object
 ps_object = phyloseq(asv_matrix,taxa_matrix)                                    #1173 taxa and 390 samples
@@ -76,7 +76,9 @@ alphas
 
 ps_css = transform_sample_counts(ps2, function(x) x/sum(x))
 ps_css = transform_sample_counts(ps2, function(x) log1p(x))
-otu_table(ps_css)                                                               #Sanity check for normalization 
+normalized_css_otu = otu_table(ps_css)                                                               #Sanity check for normalization 
+write.csv(normalized_css_otu,file = "ps_css_normalized_kat.csv")
+taxa_table_kat = write.csv(tax_table(ps_css), file = "taxa_table_kat.csv")
 sample_data(ps_css)
 ps_css
 sample_names(ps_css)
@@ -87,7 +89,8 @@ beta_plotting<-function(metadata_variable, dist, meth){
   beta_ordination = ordinate(ps_css_filtered, method = meth, distance = dist)
   group_colors = c("#5f9c9d","#d36f6f","#786a87")
   beta_plot = plot_ordination(ps_css, ordination = beta_ordination, type = "id2", color = metadata_variable)
-  plot<-beta_plot + scale_color_manual(values = group_colors)+stat_ellipse(alpha = 0.07, geom = "polygon", aes(fill = metadata_variable), show.legend=FALSE) +
+  plot<-beta_plot + scale_color_manual(values = group_colors)+stat_ellipse(alpha = 0.20, geom = "polygon", aes(fill = !!sym(metadata_variable)), show.legend=FALSE) +
+    scale_fill_manual(values = group_colors) + 
     theme(panel.background = element_rect(fill = "white"),
           axis.line = element_line(colour = "black"),
           panel.grid.major = element_line(colour = "gray", size=0.20),
