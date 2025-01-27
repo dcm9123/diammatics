@@ -84,7 +84,7 @@ ps_css
 sample_names(ps_css)
 
 #Plot by urbanization
-beta_plotting<-function(metadata_variable, dist, meth){
+beta_plotting<-function(metadata_variable, dist, meth, name){
   ps_css_filtered = subset_samples(ps_css, !is.na(concat) & concat!="")
   beta_ordination = ordinate(ps_css_filtered, method = meth, distance = dist)
   group_colors = c("#5f9c9d","#d36f6f","#786a87")
@@ -98,6 +98,7 @@ beta_plotting<-function(metadata_variable, dist, meth){
           panel.border = element_rect(colour="black", fill=NA, size = 1)
           )
   print(plot)
+  ggsave(filename = name,plot = plot,device = "tiff", units="in", width = 6, height=5, dpi=1200)
   filtered_sample_names = sample_names(ps_css_filtered)
   metadata_filtered = metadata[metadata$id2 %in% filtered_sample_names, ]
   distance_used = distance(ps_css_filtered, method = dist)
@@ -106,8 +107,8 @@ beta_plotting<-function(metadata_variable, dist, meth){
 
 #Plot by
 metadata
-beta_plotting("concat","bray","PCoA")
-beta_plotting("concat","jaccard","PCoA")
+beta_plotting("concat","bray","PCoA", "pcoa_bray_cst_baseline_subset.tiff")
+beta_plotting("concat","jaccard","PCoA", "pcoa_jaccard_cst_baseline_subset.tiff")
 beta_plotting("VisitType","jaccard","PCoA")
 beta_plotting("CST","bray","PCoA")
 beta_plotting("CST","jaccard","PCoA")
