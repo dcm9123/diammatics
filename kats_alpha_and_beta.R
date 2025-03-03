@@ -20,7 +20,8 @@ path = "/Users/danielcm/Desktop/Sycuro/Projects/Chlamydia/"
 setwd(path)
 df = read.csv("vsearch_dada2_merged_clean_20241107_asv_collapse.csv", header=FALSE)
 new_sample_names = as.character(unlist(df[1,66:455]))
-asv_table = read.csv("kats_asv_table.csv")                                      #Reading the modified file for asv count and samples
+asv_table = read.csv("kats_asv_table.csv")  
+View(asv_table)#Reading the modified file for asv count and samples
 asv_table_formatted = otu_table(asv_table, taxa_are_rows = TRUE)
 asv_matrix = as.matrix(asv_table_formatted)
 asv_matrix#Phyloseq needs a matrix to work properly, not a df
@@ -29,13 +30,14 @@ asv_matrix
 taxa_table = read.csv("kats_taxa_table.csv")                                    #Reading the modified file for taxonomy assignment per asv
 taxa_matrix = as.matrix(taxa_table)
 taxa_matrix = tax_table(taxa_matrix)
-metadata = read.csv("kats_metadata_cst_baseline.csv.csv", row.names = 1)
-metadata
+metadata = read.csv("kats_metadata_followup_cst2.csv", row.names = 1)
+length(rownames(metadata))
 #Establishing ps object
 ps_object = phyloseq(asv_matrix,taxa_matrix)                                    #1173 taxa and 390 samples
 ps_object = merge_phyloseq(ps_object, metadata)                                 #Sanity check
 sample_data(ps_object)<-metadata
 ps_object
+View(df)
 #################################################################################
 #DATA PREPROCESSING##############################################################
 #################################################################################
@@ -81,6 +83,7 @@ alphas
 #################################################################################
 
 df_alpha = read.csv("kats_alpha.csv", row.names=1)
+View(df_alpha)
 df_alpha = as.matrix(df_alpha)
 df_alpha = apply(df_alpha, 2, as.numeric)
 df_alpha
@@ -97,9 +100,9 @@ alphas_species = write.csv(x = alphas_species,file = "alpha_diversity_kat.csv")
 #Normalizing by CSS
 normalization_css<-function(ps_object){
   ntaxa(ps_object)            #output is 30 for ps1
-  nsamples(ps_object)         #output is 116 for ps1
+  nsamples(ps_object)         #output is 117 for ps1
   min(sample_sums(ps_object))
-  otu_mat <- as(otu_table(ps_object), "matrix")         # Convert OTU table to a matrix
+  otu_mat <- as(otu_table(ps_object), "matrix")   # Convert OTU table to a matrix
   sample_nonzero_counts <- colSums(otu_mat > 0)   # Count nonzero OTUs per sample
   summary(sample_nonzero_counts)                  # Check distribution of nonzero OTUs per sample
   ps_css1 = phyloseq_to_metagenomeSeq(ps_object)
@@ -163,6 +166,7 @@ beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
   filtered_sample_names = sample_names(ps_filtered)
   metadata_filtered = metadata[metadata$id2 %in% filtered_sample_names, ]
   distance_used = distance(ps_filtered, method = dist)
+  print(metadata_filtered)
   print(pairwise.adonis2(distance_used ~ concat, data = metadata_filtered, method=dist,nperm = 999))
 }
 
