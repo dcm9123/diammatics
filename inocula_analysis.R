@@ -280,12 +280,28 @@ beta_plotting(inocula_ps_clr, "Seroconversion", "euclidean","PCoA", "seroconvers
 
 alphas = estimate_richness(merged_ps_inocula_filtered)
 write.csv(x = alphas, file = "alpha_diversity_inocula.csv")
-View(tax_table(merged_ps_inocula_filtered))
 
+merging_genus_and_species = function(ps_object){
+  tax_table(ps_object)[,"species_final"] = paste(tax_table(ps_object)[, "genus_final"],
+                                                 tax_table(ps_object)[, "species_final"],
+                                                 sep=" ") #This merges genus and species into the species column
+  tax_table(ps_object)[,"species_final"] = gsub("^([A-Za-z]+) \\1 ", "\\1 ", 
+                                                tax_table(ps_object)[,"species_final"]) #This RE makes sure that if the first two strings are the same, it removes the 
+  #first string (i.e. Akkermansia Akkermansia muciniphila -> Akkermansia muciniphila)
+  tax_table(ps_object)[,"species_final"] <- gsub("^([A-Za-z]+ [A-Za-z]+).*", "\\1", tax_table(ps_object)[,"species_final"])
+  return(ps_object)
+}
+
+merged_ps_inocula_filtered = merging_genus_and_species(merged_ps_inocula_filtered)
+merged_ps_inocula_filtered = tax_glom(physeq = merged_ps_inocula_filtered,taxrank = "species_final")
+#merged_ps_inocula_filtered #Went down from 60 to 47 species
+ns1_inocula_filtered = subset_samples(merged_ps_inocula_filtered, Consortia=="NS1")
+ns1_inocula_filtered = filter_taxa(ns1_inocula_filtered,flist = function (x) sum(x)>0, prune = TRUE)
+ns1_inocula_filtered #20 taxa and 3 samples
 
 relative_abundance_plot = function(ps_object, top_to_look_for){
   print(rank_names(ps_object))
-  ps_object_genus = tax_glom(ps_object, taxrank = "genus_final")
+  ps_object_genus = tax_glom(ps_object, taxrank = "species_final")
   print(ntaxa(ps_object_genus))
   top = names(sort(taxa_sums(ps_object_genus), decreasing=TRUE))[1:top_to_look_for]
   ps_relative_abundance = transform_sample_counts(ps_object_genus, function(x) (x/sum(x)*100))
@@ -293,12 +309,13 @@ relative_abundance_plot = function(ps_object, top_to_look_for){
   df = psmelt(ps_relative_abundance_genus)
   my_colors = c("#58643d","#6a42c3","#7ed05b","#c853bc","#cdb756",
                "#4b2e4b","#90c9b6","#c25d39","#8e92c2","#c35774")
-  df$genus_final = factor(df$genus_final, levels = names(sort(tapply(df$Abundance, df$genus_final, sum), decreasing=TRUE)))
-  unique_genera = levels(df$genus_final)
+  df$species_final = factor(df$species_final, levels = names(sort(tapply(df$Abundance, 
+                            df$species_final, sum), decreasing=TRUE)))
+  unique_genera = levels(df$species_final)
   repeated_colors = rep(my_colors, length.out = length(unique_genera))
   color_mapping = setNames(repeated_colors, unique_genera)
   
-  plot_genus_top = ggplot(df, aes(x = Sample, y = Abundance, fill=genus_final)) +
+  plot_genus_top = ggplot(df, aes(x = Sample, y = Abundance, fill=species_final)) +
     geom_bar(stat = "identity", position="stack") +
     theme_minimal() + labs(y = "Relative abundance (%)") + 
     theme(axis.text.x = element_text(angle=90)) +
@@ -306,7 +323,20 @@ relative_abundance_plot = function(ps_object, top_to_look_for){
   print(plot_genus_top)
   #View(tax_table(ps_object_genus))
 }
-relative_abundance_plot(merged_ps_inocula_filtered, 31)
+
+fixing_asv_names = function(ps){
+  dna = Biostrings::DNAStringSet(taxa_names(ps))
+  names(dna) = taxa_names(ps)
+  ps = merge_phyloseq(ps, dna)
+  return(ps)
+  #View(tax_table(t(ns1_inocula_filtered)))
+}
+
+View(otu_table(t(test)))
+relative_abundance_plot(ns1_inocula_filtered, ntaxa(ns1_inocula_filtered))
+ns1_inocula_filtered
+
+
 
 
 
@@ -345,3 +375,7 @@ picrust_to_maaslin2(path_picrust2 = "/Users/danielcm/Desktop/Sycuro/Projects/Dia
 picrust_to_maaslin2(path_picrust2 = "/Users/danielcm/Desktop/Sycuro/Projects/Diabetes/local_dada2_vsearch/picrust2_inocula_merged_default_db/KO_metagenome_out/",
                     variable = "Seroconversion", normalization_method = "TSS", transformation = "LOG", file_to_use = "pred_metagenome_unstrat.tsv", ps=merged_ps_inocula_filtered,
                     output_name = 'maaslin2_results_default_picrust_log2')
+
+
+
+
