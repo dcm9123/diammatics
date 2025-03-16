@@ -15,8 +15,8 @@ library("pairwiseAdonis")
 library("Maaslin2")
 
 
-path = "/Users/danielcm/Desktop/Sycuro/Projects/Diabetes/local_dada2_vsearch/"
-setwd(path)
+original_path = "/Users/danielcm/Desktop/Sycuro/Projects/Diabetes/local_dada2_vsearch/t1d_first/"
+setwd(original_path)
 
 #################################################################################
 #DATA PREPROCESSING##############################################################
@@ -67,7 +67,6 @@ getting_inocula_asvs<-function(rds_file, taxa_file, plate_number){ #Need to fix 
   #View(df_inocula)
   taxa_table = as.matrix(taxa_table)
   rownames(taxa_table)=taxa_table[,1] #This ensures that the sample names between taxa table and df_inocula match. This is very important! D:
-  
   ps = phyloseq(otu_table(df_inocula, taxa_are_rows = FALSE), sample_data(metadata_generated), tax_table(taxa_table))
   dna = Biostrings::DNAStringSet(taxa_names(ps))
   names(dna) = taxa_names(ps)
@@ -75,11 +74,43 @@ getting_inocula_asvs<-function(rds_file, taxa_file, plate_number){ #Need to fix 
   return(ps)
 }
 
-ps_inocula1 = getting_inocula_asvs("plate1/seqtab_nochimeras.rds", "plate1/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",1)
+getting_taxonomy_file = function(path, file_in){
+  setwd(path)
+  f = read.csv(file = file_in, sep="\t")
+  asv_taxonomy = data.frame(f$asv_seq, f$kingdom_final, f$phylum_final, f$class_final,
+                          f$order_final, f$family_final, f$genus_final,
+                          f$species_final)
+  colnames(asv_taxonomy)[colnames(asv_taxonomy)=="f.asv_seq"] = "asv_seq"
+  colnames(asv_taxonomy)[colnames(asv_taxonomy)=="f.kingdom_final"] = "kingdom_final"
+  colnames(asv_taxonomy)[colnames(asv_taxonomy)=="f.phylum_final"] = "phylum_final"
+  colnames(asv_taxonomy)[colnames(asv_taxonomy)=="f.class_final"] = "class_final"
+  colnames(asv_taxonomy)[colnames(asv_taxonomy)=="f.order_final"] = "order_final"
+  colnames(asv_taxonomy)[colnames(asv_taxonomy)=="f.family_final"]= "family_final"
+  colnames(asv_taxonomy)[colnames(asv_taxonomy)=="f.genus_final"] = "genus_final"
+  colnames(asv_taxonomy)[colnames(asv_taxonomy)=="f.species_final"] = "species_final"
+  asv_taxonomy_comma = apply(asv_taxonomy, 1, paste, collapse = ",")
+  write.csv(asv_taxonomy,file = "phyloseq_taxonomy.csv",row.names = FALSE)
+  setwd(original_path)
+  return()
+}
+
+
+
+#This set of inocula works fine without having to modify the file when GTDB was run first
+ps_inocula1 = getting_inocula_asvs("plate1/seqtab_nochimeras.rds", "plate1/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",1) #This file 
 ps_inocula3 = getting_inocula_asvs("plate3/seqtab_nochimeras.rds", "plate3/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",3)
 ps_inocula4 = getting_inocula_asvs("plate4/seqtab_nochimeras.rds", "plate4/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",4)
 ps_inocula5 = getting_inocula_asvs("plate5/seqtab_nochimeras.rds", "plate5/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",5)
-#sample_data(ps_inocula1)
+
+#Run this one if GTDB was NOT first (i.e. t1d_zymo_gtdb)
+getting_taxonomy_file("plate1/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
+ps_inocula1 = getting_inocula_asvs("plate1/seqtab_nochimeras.rds","plate1/taxonomy/final_merged_tables/phyloseq_taxonomy.csv", 1)
+getting_taxonomy_file("plate3/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
+ps_inocula3 = getting_inocula_asvs("plate3/seqtab_nochimeras.rds","plate3/taxonomy/final_merged_tables/phyloseq_taxonomy.csv", 3)
+getting_taxonomy_file("plate4/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
+ps_inocula4 = getting_inocula_asvs("plate4/seqtab_nochimeras.rds","plate4/taxonomy/final_merged_tables/phyloseq_taxonomy.csv", 4)
+getting_taxonomy_file("plate5/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
+ps_inocula5 = getting_inocula_asvs("plate5/seqtab_nochimeras.rds","plate5/taxonomy/final_merged_tables/phyloseq_taxonomy.csv", 5)
 
 ps_inocula1 #1346 ASVs and 38 samples and ctrls
 ps_inocula3 #917 ASVs and 90 samples and ctrls
@@ -160,7 +191,6 @@ ps_s5_plate1 = subset_samples(ps_inocula_formatted_s5, plate=="plate1")
 ps_s5_plate3 = subset_samples(ps_inocula_formatted_s5, plate=="plate3")
 ps_s5_plate4 = subset_samples(ps_inocula_formatted_s5, plate=="plate4")
 
-View(tax_table(ps_s5_plate4))
 
 #################################################################################
 #TAXA ANALYSIS###################################################################
@@ -228,7 +258,6 @@ s5_plate1_taxa_formatted = filter_taxa(s5_plate1_taxa_formatted,flist = function
 s5_plate3_taxa_formatted = filter_taxa(s5_plate3_taxa_formatted,flist = function(x) sum(x)>0, prune=TRUE)
 s5_plate4_taxa_formatted = filter_taxa(s5_plate4_taxa_formatted,flist = function(x) sum(x)>0, prune=TRUE)
 
-
 #Getting the unique species for each inocula and each plate
 ns1_plate1_species_list = as.character(unique(tax_table(ns1_plate1_taxa_formatted)[,"species_final"]))
 ns1_plate4_species_list = as.character(unique(tax_table(ns1_plate4_taxa_formatted)[,"species_final"]))
@@ -243,6 +272,7 @@ s5_plate1_species_list = as.character(unique(tax_table(s5_plate1_taxa_formatted)
 s5_plate3_species_list = as.character(unique(tax_table(s5_plate3_taxa_formatted)[,"species_final"]))
 s5_plate4_species_list = as.character(unique(tax_table(s5_plate4_taxa_formatted)[,"species_final"]))
 
+#Sanity check
 setequal(ns1_plate1_species_list, ns1_plate4_species_list)
 setequal(ns1_plate1_species_list, ns1_plate5_species_list)
 setequal(ns1_plate4_species_list, ns1_plate5_species_list)
@@ -414,8 +444,9 @@ relative_abundance_plot = function(ps_object, top_to_look_for){
 
 relative_abundance_plot(ps_inocula_clean_ns1, ntaxa(ps_inocula_clean_ns1))
 relative_abundance_plot(ps_inocula_clean_ns6, ntaxa(ps_inocula_clean_ns6))
-
-
+relative_abundance_plot(ps_inocula_clean_s2, ntaxa(ps_inocula_clean_s2))
+relative_abundance_plot(ps_inocula_clean_s5, ntaxa(ps_inocula_clean_s5))
+View(otu_table(ps_inocula_clean_s5))
 
 
 #Getting the .tsv file for picrust (not normalized)
