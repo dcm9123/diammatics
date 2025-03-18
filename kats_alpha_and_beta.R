@@ -38,6 +38,7 @@ ps_object = merge_phyloseq(ps_object, metadata)                                 
 sample_data(ps_object)<-metadata
 ps_object
 View(df)
+
 #################################################################################
 #DATA PREPROCESSING##############################################################
 #################################################################################
@@ -146,6 +147,14 @@ ps_clr2
 
 otu_table(ps_clr2)
 
+#EUCLIDEAN CLUSTERING
+euclidean_dendrogram = function(ps_object){
+  euclidean_dist = dist(otu_table(t(ps_object)), method="euclidean")
+  clustering = hclust(euclidean_dist, method="complete")
+  plot(clustering,cex=0.5)
+}
+euclidean_dendrogram(ps_clr1)
+euclidean_dendrogram(ps_clr2)
 
 #BETA-DIVERSITY PLOTTING
 beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
