@@ -19,6 +19,7 @@ packageVersion("phyloseq")
 path = "/Users/danielcm/Desktop/Sycuro/Projects/Chlamydia/"
 setwd(path)
 df = read.csv("vsearch_dada2_merged_clean_20241107_asv_collapse.csv", header=FALSE)
+View(df)
 new_sample_names = as.character(unlist(df[1,66:455]))
 asv_table = read.csv("kats_asv_table.csv")  
 View(asv_table)#Reading the modified file for asv count and samples
@@ -27,14 +28,19 @@ asv_matrix = as.matrix(asv_table_formatted)
 asv_matrix#Phyloseq needs a matrix to work properly, not a df
 colnames(asv_matrix) = new_sample_names
 asv_matrix
-taxa_table = read.csv("kats_taxa_table.csv")                                    #Reading the modified file for taxonomy assignment per asv
+taxa_table = read.csv("kats_taxa_table.csv")        
+#View(taxa_table)#Reading the modified file for taxonomy assignment per asv
 taxa_matrix = as.matrix(taxa_table)
 taxa_matrix = tax_table(taxa_matrix)
-metadata = read.csv("kats_metadata_followup_cst2.csv", row.names = 1)
+metadata = read.csv("kats_metadata_followup_and_baseline_cst2.csv", row.names = 1)
+View(metadata)
 length(rownames(metadata))
 #Establishing ps object
+taxa_matrix
 ps_object = phyloseq(asv_matrix,taxa_matrix)                                    #1173 taxa and 390 samples
 ps_object = merge_phyloseq(ps_object, metadata)                                 #Sanity check
+ps_object = prune_samples(sample_names(ps_object)!="TKG20152702_S244_L001",ps_object)
+otu_table(ps_object)
 sample_data(ps_object)<-metadata
 ps_object
 View(df)
@@ -42,7 +48,68 @@ View(df)
 #################################################################################
 #DATA PREPROCESSING##############################################################
 #################################################################################
-ps_object_normalized = transform_sample_counts(ps_object, function(x) x / sum(x))
+#Laura's way first#This calculates the relative abundance of each ASV sum across all samples, and discards if the threshold is
+#below what I specify (0.001, 0.000001)
+
+#To do: (i) Filter of 0.000001% and 5%, 0.000001% and nothing, and raw.
+ps_non_zeros = prune_taxa(taxa_sums(ps_object) > 0, ps_object)                # Remove any ASV with 0 counts
+ps_non_zeros
+total_counts_per_asv = rowSums(otu_table(ps_non_zeros))                         # Add up all the ASV counts across all samples.
+total_reads = sum(total_counts_per_asv)                                         # Get the total number of reads across all ASVs and all samples
+relative_abundance = total_counts_per_asv/total_reads                           # Calculate the relative abundance for each ASV
+relative_abundance                                                              # Sanity check
+thresholds = c(0.001, 0.00001)
+ps_asv_filter= prune_taxa(relative_abundance>=thresholds[2], ps_non_zeros)
+#laura_ps2 = prune_taxa(relative_abundance>=thresholds[2], ps_non_zeros)                                                                  #Down to 185 taxa
+ps_temp = genefilter_sample(ps_asv_filter, filterfun_sample(function(x) x>0),
+                                             A = 0.05*nsamples(ps_asv_filter))
+ps_asv_and_sample_filter = prune_taxa(ps_temp, ps_asv_filter) 
+ps3 = ps_asv_and_sample_filter #ps1 to use (hard filter)
+ps2 = ps_asv_filter #ps2 to use (relaxed filter)
+ps1 = ps_non_zeros #ps3 to use (raw)
+
+ps1 #501 ASVs
+ps2 #400 ASVs
+ps3 #80 ASVs
+ps_object #1173 taxa (original with no filtering)
+
+alphas1 = phyloseq::estimate_richness(ps1) #Not typically used
+alphas2 = phyloseq::estimate_richness(ps2) #Not typically used
+alphas3 = phyloseq::estimate_richness(ps3) #Not typically used
+alphas4 = phyloseq::estimate_richness(ps_object) #Use unfiltered one!
+
+alphas4 = cbind(id2 = rownames(alphas4), alphas4)
+alphas4 = merge(alphas4, metadata[,c("id2","VisitType")], by="id2", all.x=TRUE)
+alphas4 #Sanity check
+
+alphas1 = cbind(id2 = rownames(alphas1), alphas1)
+alphas1 = cbind(id2 = rownames(alphas1), alphas1)
+alphas1
+metadata
+alphas1 = merge(alphas1, metadata[,c("id2","VisitType")], by="id2", all.x=TRUE)
+write.csv(alphas1, "alphas_no_zeroes.csv")
+
+otu_values = otu_table(ps_object, taxa_are_rows = TRUE)
+otu_table(ps_object)
+total_abundance = colSums(otu_values)
+max_abundance = apply(otu_values,2,max)
+berger_index = max_abundance/total_abundance
+sample_data(ps_object)$berger = as.character(berger_index)
+sample_data(ps_object)
+x <- as.matrix(sample_data(ps_object))
+
+write.csv(x, "alpha_raw_with_berger.csv")
+x = as.data.frame(x)
+class(x)
+setdiff(sample_data(ps_object)$id2, as.character(alphas4$id2))
+dim(x)
+
+################################################################################
+################################################################################
+################################################################################
+#Daniel's way second
+ps_non_zeros = prune_taxa(speciesSums(ps_object) > 0, ps_object)
+ps_object_normalized = transform_sample_counts(ps_non_zeros, function(x) x / sum(x))
 thresholds = c(0.001,0.0001,0.00001)
 filtered_ps = lapply(thresholds, function(thres){
   keep_taxa = taxa_names(ps_object_normalized)[
@@ -54,9 +121,9 @@ ps_filtered_1 = filtered_ps[[1]]
 ps_filtered_2 = filtered_ps[[2]]
 ps_filtered_3 = filtered_ps[[3]]
 
-ps_filtered_1                               #66 taxon retained across 390 samples
-ps_filtered_2                               #189 taxon retained across 390 samples
-ps_filtered_3                               #413 taxon retained across 390 samples
+ps_filtered_1                               #66 taxon retained across 117 samples
+ps_filtered_2                               #189 taxon retained across 117 samples
+ps_filtered_3                               #413 taxon retained across 117 samples
 
 ps1_temp = genefilter_sample(ps_filtered_1, filterfun_sample(function(x) x>0),   #This removes taxa that is not present in more than 10% of the samples
                              A=0.10*nsamples(ps_filtered_1))
@@ -75,6 +142,7 @@ ps2 #0.00001 and 5%
 
 #I will be calculating the alpha diversity on untrimmed data but removing non-existing ASVs per sample.
 ps_non_zeros = prune_taxa(speciesSums(ps_object) > 0, ps_object)
+ps_non_zeros
 alphas = estimate_richness(ps_non_zeros)
 write.csv(x = alphas, file = "alpha_diversity_kat.csv")
 alphas
@@ -122,9 +190,11 @@ normalization_css<-function(ps_object){
 
 ps_css1 = normalization_css(ps1)
 ps_css2 = normalization_css(ps2)
+ps_css3 = normalization_css(ps3)
 
 otu_table(ps_css1) #sanity check
 otu_table(ps_css2) #sanity check
+otu_table(ps_css3) #sanity check
 
 #Normalizing by CLR
 normalization_clr<-function(ps_object){
@@ -158,10 +228,10 @@ euclidean_dendrogram(ps_clr2)
 
 #BETA-DIVERSITY PLOTTING
 beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
-  ps_filtered = subset_samples(ps_object, !is.na(concat) & concat!="")
-  beta_ordination = ordinate(ps_filtered, method = meth, distance = dist)
+  ps_filtered = subset_samples(ps_object, !is.na(VisitType) & VisitType!="")
+  beta_ordination = ordinate(ps_filtered, method = meth, distance = "bray")
   group_colors = c("#5f9c9d","#d36f6f","#786a87")
-  beta_plot = plot_ordination(ps_object, ordination = beta_ordination, type = "id2", color = metadata_variable)
+  beta_plot = plot_ordination(ps_filtered, ordination = beta_ordination, type = "samples", color = metadata_variable)
   plot<-beta_plot + scale_color_manual(values = group_colors)+stat_ellipse(alpha = 0.20, geom = "polygon", aes(fill = !!sym(metadata_variable)), show.legend=FALSE) +
     scale_fill_manual(values = group_colors) + 
     theme(panel.background = element_rect(fill = "white"),
@@ -173,15 +243,31 @@ beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
   print(plot)
   ggsave(filename = name,plot = plot,device = "tiff", units="in", width = 6, height=5, dpi=1200)
   filtered_sample_names = sample_names(ps_filtered)
+  #print(filtered_sample_names)
   metadata_filtered = metadata[metadata$id2 %in% filtered_sample_names, ]
-  distance_used = distance(ps_filtered, method = dist)
-  print(metadata_filtered)
-  print(pairwise.adonis2(distance_used ~ concat, data = metadata_filtered, method=dist,nperm = 999))
+  #print(table(metadata_filtered$VisitType))
+  distance_used = phyloseq::distance(physeq = ps_filtered,"bray")
+  #print(distance_used)
+  #print(metadata_filtered)
+  print(pairwise.adonis2(distance_used ~ VisitType, data = metadata_filtered, method="bray",nperm = 999))
 }
 
 #Plot by
-metadata
-beta_plotting(ps_css1, "concat","bray","PCoA", "pcoa_bray_cst_baseline_subset_001_and_10.tiff")
+a = subset_samples(ps_object, !is.na(VisitType) & VisitType!="")
+f_sam = sample_names(a)
+metadata$VisitType
+metadata[metadata$VisitType %in% filtered_sample_names,]
+
+beta_plotting(ps_css1, "VisitType","bray","NMDS", "NMDS_bray_VisitType_subset_raw.tiff")
+beta_plotting(ps_css2, "VisitType","bray","NMDS", "NMDS_bray_VisitType_subset_soft_filter.tiff")
+beta_plotting(ps_css3, "VisitType","bray","NMDS", "NMDS_bray_VisitType_subset_hard_filter.tiff")
+beta_plotting(ps_css1, "VisitType","jaccard","NMDS", "NMDS_jaccard_VisitType_subset_raw.tiff")
+beta_plotting(ps_css2, "VisitType","jaccard","NMDS", "NMDS_jaccard_VisitType_subset_soft_filter.tiff")
+beta_plotting(ps_css3, "VisitType","jaccard","NMDS", "NMDS_jaccard_VisitType_subset_hard_filter.tiff")
+
+
+
+
 beta_plotting(ps_css1, "concat","jaccard","PCoA","pcoa_jaccard_cst_baseline_subset_001_and_10.tiff")
 beta_plotting(ps_css2, "concat","bray","PCoA","pcoa_bray_cst_baseline_subset_00001_and_5.tiff")
 beta_plotting(ps_css2, "concat","jaccard","PCoA","pcoa_jaccard_cst_baseline_subset_00001_and_5.tiff")
