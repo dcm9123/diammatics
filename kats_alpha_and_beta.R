@@ -8,6 +8,8 @@
 #################################################################################
 BiocManager::install("metagenomeSeq")
 devtools::install_github("joey711/phyloseq")
+install.packages("dendextend")
+install.packages("ggdendro")
 library("zCompositions")
 library("compositions")
 library("phyloseq")
@@ -15,6 +17,9 @@ library("metagenomeSeq")
 library("phyloseq")
 library("ggplot2")
 library("pairwiseAdonis")
+library("dendextend")
+library("ggdendro")
+library("dplyr")
 packageVersion("phyloseq")
 path = "/Users/danielcm/Desktop/Sycuro/Projects/Chlamydia/"
 setwd(path)
@@ -221,10 +226,43 @@ otu_table(ps_clr2)
 euclidean_dendrogram = function(ps_object){
   euclidean_dist = dist(otu_table(t(ps_object)), method="euclidean")
   clustering = hclust(euclidean_dist, method="complete")
-  plot(clustering,cex=0.5)
+  cst_type = sample_data(ps_object)[["CST"]]
+  names(cst_type) = sample_names(ps_object)
+  unique_values = unique(cst_type[cst_type!=""])
+  colors = setNames(rainbow(length(unique_values)), unique_values)
+  colors[""] = "black"
+  ordered_samples = rownames(t(otu_table(ps_object))[clustering$order])
+  label_colors = colors[cst_type[ordered_samples]]
+  
+  # Adjust margins to create more space for the text below the plot
+  par(mar = c(20, 4, 4, 2))  # Increase the bottom margin for text labels
+  
+  # Plot dendrogram without labels, but shrink the height to allow space below
+  plot(clustering, labels = FALSE, cex = 0.5, hang=0.2, uniform=TRUE,
+       main = "", xlab = "", sub = "", 
+       ylim = c(-max(clustering$height) * 10, max(clustering$height) * 1.2))  # Adjust ylim
+  
+  # Get leaf x-positions for text labels
+  dend = as.dendrogram(clustering)
+  leaf_x_positions = order.dendrogram(dend)
+  # Add text labels below the dendrogram
+  # Adjust the 'y' position to move text further down
+  text(leaf_x_positions, 
+       labels = ordered_samples, 
+       col = label_colors, 
+       srt = 90, adj = 0.5, cex = 0.5)
 }
-euclidean_dendrogram(ps_clr1)
-euclidean_dendrogram(ps_clr2)
+euclidean_dendrogram(ps_css3_baseline)
+
+sample_data(ps_css1)[["CST"]]
+ps_css1_baseline = subset_samples(ps_css1,VisitType=="Baseline")
+ps_css2_baseline = subset_samples(ps_css2,VisitType=="Baseline")
+ps_css3_baseline = subset_samples(ps_css3,VisitType=="Baseline")
+ps_css1_followup = subset_samples(ps_css1,VisitType=="Follow Up")
+ps_css2_followup = subset_samples(ps_css2,VisitType=="Follow Up")
+ps_css3_followup = subset_samples(ps_css3,VisitType=="Follow Up")
+
+
 
 #BETA-DIVERSITY PLOTTING
 beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
