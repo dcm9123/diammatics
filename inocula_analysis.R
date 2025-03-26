@@ -310,6 +310,18 @@ overlap_and_differences(s5_asv_genomes, s5_plate1_species_list)
 overlap_and_differences(s5_asv_genomes, s5_plate3_species_list)
 overlap_and_differences(s5_asv_genomes, s5_plate4_species_list)
 
+list = list("Plate3" = s5_plate3_species_list,
+            "Plate5" = s5_plate4_species_list,
+            "Plate1" = s5_plate1_species_list)
+
+for(j in seq_along(list)){
+  for(i in list[[j]]){
+    if(grepl(pattern = "effluvi", i)=="TRUE"){
+      print(paste0(names(list[j]),": ","TRUE"))
+    }
+  }
+}
+
 #################################################################################
 #BETA DIVERSITY##################################################################
 #################################################################################
