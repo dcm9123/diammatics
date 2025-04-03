@@ -15,7 +15,7 @@ library("pairwiseAdonis")
 library("Maaslin2")
 
 
-original_path = "/Users/danielcm/Desktop/Sycuro/Projects/Diabetes/local_dada2_vsearch/t1d_first/"
+original_path = "/Users/danielcm/Desktop/Sycuro/Projects/Diabetes/local_dada2_vsearch/t1d_priors_first/"
 setwd(original_path)
 
 #################################################################################
@@ -59,7 +59,7 @@ getting_inocula_asvs<-function(rds_file, taxa_file, plate_number){ #Need to fix 
     else{
       inocula[i] = 'No'
     }
-    }
+  }
   #print(rds_file)
   metadata_generated = data.frame(ID=sample_names, Consortia=consortia, Seroconversion=seroconversion, Inocula=inocula)
   rownames(metadata_generated) = modified_sample_names
@@ -97,25 +97,31 @@ getting_taxonomy_file = function(path, file_in){
 
 
 #This set of inocula works fine without having to modify the file when GTDB was run first
-ps_inocula1 = getting_inocula_asvs("plate1/seqtab_nochimeras.rds", "plate1/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",1) #This file 
-ps_inocula3 = getting_inocula_asvs("plate3/seqtab_nochimeras.rds", "plate3/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",3)
-ps_inocula4 = getting_inocula_asvs("plate4/seqtab_nochimeras.rds", "plate4/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",4)
-ps_inocula5 = getting_inocula_asvs("plate5/seqtab_nochimeras.rds", "plate5/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",5)
+ps_inocula1 = getting_inocula_asvs("../plate1/seqtab_nochimeras.rds", "../plate1/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",1) #This file 
+ps_inocula2 = getting_inocula_asvs("../plate2/seqtab_nochimeras.rds", "../plate2/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",2)
+ps_inocula3 = getting_inocula_asvs("../plate3/seqtab_nochimeras.rds", "../plate3/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",3)
+ps_inocula4 = getting_inocula_asvs("../plate4/seqtab_nochimeras.rds", "../plate4/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",4)
+ps_inocula5 = getting_inocula_asvs("../plate5/seqtab_nochimeras.rds", "../plate5/taxonomy/final_merged_tables/phyloseq_taxonomy.csv",5)
 
 #Run this one if GTDB was NOT first (i.e. t1d_zymo_gtdb)
-getting_taxonomy_file("plate1/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
-ps_inocula1 = getting_inocula_asvs("plate1/seqtab_nochimeras.rds","plate1/taxonomy/final_merged_tables/phyloseq_taxonomy.csv", 1)
-getting_taxonomy_file("plate3/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
-ps_inocula3 = getting_inocula_asvs("plate3/seqtab_nochimeras.rds","plate3/taxonomy/final_merged_tables/phyloseq_taxonomy.csv", 3)
-getting_taxonomy_file("plate4/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
-ps_inocula4 = getting_inocula_asvs("plate4/seqtab_nochimeras.rds","plate4/taxonomy/final_merged_tables/phyloseq_taxonomy.csv", 4)
-getting_taxonomy_file("plate5/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
-ps_inocula5 = getting_inocula_asvs("plate5/seqtab_nochimeras.rds","plate5/taxonomy/final_merged_tables/phyloseq_taxonomy.csv", 5)
+getting_taxonomy_file("../t1d_first/plate1/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
+ps_inocula1 = getting_inocula_asvs("plate1/seqtab_nochimeras.rds","plate1/phyloseq_taxonomy.csv", 1)
+getting_taxonomy_file("../t1d_first/plate2/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
+ps_inocula2 = getting_inocula_asvs("plate2/seqtab_nochimeras.rds","plate2/phyloseq_taxonomy.csv", 2)
+getting_taxonomy_file("../t1d_first/plate3/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
+ps_inocula3 = getting_inocula_asvs("plate3/seqtab_nochimeras.rds","plate3/phyloseq_taxonomy.csv", 3)
+getting_taxonomy_file("../t1d_first/plate4/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
+ps_inocula4 = getting_inocula_asvs("plate4/seqtab_nochimeras.rds","plate4/phyloseq_taxonomy.csv", 4)
+getting_taxonomy_file("../t1d_first/plate5/taxonomy/final_merged_tables/","vsearch_dada2_merged.tsv")
+ps_inocula5 = getting_inocula_asvs("plate5/seqtab_nochimeras.rds","plate5/phyloseq_taxonomy.csv", 5)
+getwd()
+"../plate1/seqtab_nochimeras.rds"
 
-ps_inocula1 #1346 ASVs and 38 samples and ctrls
-ps_inocula3 #917 ASVs and 90 samples and ctrls
-ps_inocula4 #1226 ASVs and 90 samples and ctls
-ps_inocula5 #1442 ASVs and 56 samples and ctrls
+ps_inocula1 #1346 ASVs and 38 samples and ctrls vs 1304
+ps_inocula2 #1371 ASVs and 90 samples and ctrls (no inocula) vs 1386
+ps_inocula3 #917 ASVs and 90 samples and ctrls vs 899
+ps_inocula4 #1226 ASVs and 90 samples and ctls vs 1212
+ps_inocula5 #1442 ASVs and 56 samples and ctrls vs 1465
 
 merged_ps = merge_phyloseq(ps_inocula1, ps_inocula3, ps_inocula4, ps_inocula5) #The total of each ps alone adds up to 4,931 ASVs and 274 samples
 sample_data(merged_ps) #Sanity check
@@ -282,19 +288,46 @@ setequal(ns6_plate1_species_list, ns6_plate4_species_list)
 
 
 #Creating a function that identifies the overlap and unique species from the ASV data vs what we expect
+#And a lot of reformatting for the T1D database too
 overlap_and_differences = function(asv_genomes, plate_species){
-  overlap_values = sort(intersect(asv_genomes, plate_species))
-  print(paste0("The number of expected species is: ", length(asv_genomes)))
+  vector_species = c()
+  vector_genus = c()
+  #print(plate_species)
+  for(species in plate_species){
+    words = strsplit(species," ")[[1]]
+    if(length(words)>=3 && words[3]!="NA"){
+      words = sub("_","",words)
+      vector_species = c(vector_species,paste0(words[2]," ",words[3]))
+      vector_genus = c(vector_genus,words[2])
+      }
+    else{
+      words = sub("_","",words)
+      words = sub("g_","",words)
+      vector_species = c(vector_species,paste0(words[1]," ",words[2]))
+      vector_genus = c(vector_genus,words[1])
+    }
+  }
+  overlap_values = sort(intersect(asv_genomes, vector_species))
   expected_genus = sapply(strsplit(asv_genomes, " "),`[`,1)
   expected_genus = unique(sort(expected_genus))
+  overlap_genus = sort(intersect(expected_genus, vector_genus))
+  unique_to_genomes = sort(setdiff(asv_genomes, vector_species))
+  unique_to_genus = sort(setdiff(expected_genus, vector_genus))
+  unique_to_asvs = sort(setdiff(vector_species, asv_genomes))
+  unique_to_asv_genus = sort(setdiff(vector_genus,expected_genus))
+  print("----------SPECIES----------")
+  print(paste0("The number of expected species is: ", length(asv_genomes)))
+  print(paste0("The species expected are: ",sort(paste(asv_genomes, collapse=", "))))
+  print(paste0("The overlap species are ", length(overlap_values),": ", paste(overlap_values, collapse=", ")))
+  print(paste0("The unique species called by the asvs in the plates are: ", paste(unique_to_asvs, collapse=", ")))
+  print(paste0("The missed species to the genomes are ", length(unique_to_genomes), " :", paste(unique_to_genomes, collapse=", ")))
+  cat("\n")
+  print("----------GENUS----------")
   print(paste0("The number of expected genus are: ", length(expected_genus)))
   print(paste0("The genus expected are: ",paste(expected_genus, collapse=", ")))
-  cat("\n")
-  print(paste0("The overlap species are ", length(overlap_values),": ", paste(overlap_values, collapse=", ")))
-  unique_to_genomes = sort(setdiff(asv_genomes, plate_species))
-  print(paste0("The missed species to the genomes are ", length(unique_to_genomes), " :", paste(unique_to_genomes, collapse=", ")))
-  unique_to_asvs = sort(setdiff(plate_species, asv_genomes))
-  print(paste0("The unique species called by the asvs in the plates are: ", paste(unique_to_asvs, collapse=", ")))
+  print(paste0("The overlap genus are ", length(overlap_genus), ": ",paste(overlap_genus, collapse=", ")))
+  print(paste0("The unique genus called by the asvs in the plates are: ", length(unique_to_asv_genus), " :", paste(unique_to_asv_genus, collapse=", ")))
+  print(paste0("The missed genus to the genomes are: ", paste(unique_to_genus, collapse=", ")))
 }
 
 overlap_and_differences(ns1_asv_genomes, ns1_plate1_species_list)
@@ -309,6 +342,8 @@ overlap_and_differences(s2_asv_genomes, s2_plate5_species_list)
 overlap_and_differences(s5_asv_genomes, s5_plate1_species_list)
 overlap_and_differences(s5_asv_genomes, s5_plate3_species_list)
 overlap_and_differences(s5_asv_genomes, s5_plate4_species_list)
+
+print(s5_plate3_species_list)
 
 list = list("Plate3" = s5_plate3_species_list,
             "Plate5" = s5_plate4_species_list,
@@ -328,9 +363,11 @@ for(j in seq_along(list)){
 
 #Normalizing by CSS
 normalization_css<-function(ps_object){
-  min(sample_sums(ps_object))
-  #otu_mat <- as(otu_table(ps_object), "matrix")   # Convert OTU table to a matrix
-  sample_nonzero_counts <- colSums(otu_table(ps_object) > 0)   # Count nonzero OTUs per sample
+  ntaxa(ps_object)            #output is 30 for ps1
+  nsamples(ps_object)         #output is 117 for ps1
+  #min(sample_sums(ps_object))
+  otu_mat <- as(otu_table(ps_object), "matrix")   # Convert OTU table to a matrix
+  sample_nonzero_counts <- colSums(otu_mat > 0)   # Count nonzero OTUs per sample
   summary(sample_nonzero_counts)                  # Check distribution of nonzero OTUs per sample
   ps_css1 = phyloseq_to_metagenomeSeq(ps_object)
   p1 = cumNormStat(ps_css1)
@@ -339,13 +376,12 @@ normalization_css<-function(ps_object){
   ps_css1_ps = ps_object
   otu_table_ps_css1 = MRcounts(ps_css1,norm = TRUE)
   otu_table_ps_css1 = as.matrix(otu_table_ps_css1)
-  print(otu_table_ps_css1)
-#  otu_table_ps_css1
-   taxa_are_rows_original = taxa_are_rows(ps_object)
-   otu_table_ps_css1 = otu_table(otu_table_ps_css1, taxa_are_rows = taxa_are_rows_original)
-#   print(otu_table_ps_css1)
-#  otu_table(ps_css1_ps) = otu_table_ps_css1
-   return(otu_table_ps_css1)
+  rownames(otu_table_ps_css1) = taxa_names(ps_css1_ps)
+  otu_table_ps_css1
+  taxa_are_rows_original = taxa_are_rows(ps_object)
+  #otu_table_ps_css1 = otu_table(otu_table_ps_css1, taxa_are_rows = taxa_are_rows_original)
+  otu_table(ps_css1_ps) <- otu_table(otu_table_ps_css1, taxa_are_rows = taxa_are_rows_original)
+  return(ps_css1_ps)
 }
 
 normalization_clr<-function(ps_object){
@@ -361,14 +397,23 @@ normalization_clr<-function(ps_object){
 }
 
 inocula_ps_clr = normalization_clr(merged_ps_inocula_filtered)
+inocula_ps_css = normalization_css(merged_ps_inocula_filtered)
+taxa_are_rows(merged_ps_inocula_filtered)
+otu_table(merged_ps_inocula_filtered)
 
 #BETA-DIVERSITY PLOTTING
 
 beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
   beta_ordination = ordinate(ps_object, method = meth, distance = dist)
-  #group_colors = c("#d36f6f","orange", "blue", "#5f9c9d") #change the number of colours if consortia vs seroconversion
-  group_colors = c("#d36f6f", "#5f9c9d")
+  print(length(unique(sample_data(ps_object)$Seroconversion)))
+  if(metadata_variable=="Seroconversion"){
+    group_colors = c("#d36f6f", "#5f9c9d")
+  }
+  else{
+    group_colors = c("#d36f6f","orange", "blue", "#5f9c9d") #change the number of colours if consortia vs seroconversion
+  }
   beta_plot = plot_ordination(ps_object, ordination = beta_ordination, type = "samples", color = metadata_variable)
+  print(beta_plot)
   plot<-beta_plot + scale_color_manual(values = group_colors)+
     stat_ellipse(alpha = 0.20, geom = "polygon", aes(fill = !!sym(metadata_variable)), show.legend=FALSE) +
     scale_fill_manual(values = group_colors) + 
@@ -382,7 +427,7 @@ beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
   ggsave(filename = name,plot = plot,device = "pdf", units="in", width = 6, height=5, dpi=1200)
   metadata = as.data.frame(as.matrix(sample_data(ps_object))) #For some reason I need to save it as matrix, then as df for it to work
   rownames(metadata) = sample_names(ps_object)
-  distance_used = distance(ps_object, method = dist)
+  distance_used = phyloseq::distance(ps_object, method = dist)
   filtered_sample_names = sample_names(ps_object)
   #print(pairwise.adonis2(distance_used ~ Consortia, data = metadata, method=dist, nperm = 999))
   print(pairwise.adonis2(distance_used ~ Seroconversion, data = metadata, method=dist, nperm = 999)) #Change this for seroconversion or consortia
@@ -394,12 +439,14 @@ removing_na_in_kingdom_or_class = function(ps_object){
   ps_object = subset_taxa(ps_object, !is.na(class_final))
   ps_object = subset_taxa(ps_object, !is.na(kingdom_final))
 }
-
+length(unique(sample_data(inocula_ps_clr)$Seroconversion))
 
 #Ploting the beta diversity
 beta_plotting(inocula_ps_clr, "Consortia","euclidean","PCoA", "consortia.pdf")
 beta_plotting(inocula_ps_clr, "Seroconversion", "euclidean","PCoA", "seroconversion.pdf")
-
+beta_plotting(inocula_ps_clr, "Seroconversion", "euclidean","PCoA","consortia_css.pdf")
+dev.off()
+sample_data(inocula_ps_clr)
 
 #################################################################################
 #ALPHA DIVERSITY & PAINTER PLOT##################################################
