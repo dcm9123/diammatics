@@ -24,10 +24,10 @@ packageVersion("phyloseq")
 path = "/Users/danielcm/Desktop/Sycuro/Projects/Chlamydia/"
 setwd(path)
 df = read.csv("vsearch_dada2_merged_clean_20241107_asv_collapse.csv", header=FALSE)
-View(df)
+#View(df)
 new_sample_names = as.character(unlist(df[1,66:455]))
 asv_table = read.csv("kats_asv_table.csv")  
-View(asv_table)#Reading the modified file for asv count and samples
+#View(asv_table)#Reading the modified file for asv count and samples
 asv_table_formatted = otu_table(asv_table, taxa_are_rows = TRUE)
 asv_matrix = as.matrix(asv_table_formatted)
 asv_matrix#Phyloseq needs a matrix to work properly, not a df
@@ -37,8 +37,8 @@ taxa_table = read.csv("kats_taxa_table.csv")
 #View(taxa_table)#Reading the modified file for taxonomy assignment per asv
 taxa_matrix = as.matrix(taxa_table)
 taxa_matrix = tax_table(taxa_matrix)
-metadata = read.csv("kats_metadata_followup_and_baseline_cst2.csv", row.names = 1)
-View(metadata)
+metadata = read.csv("kats_metadata_cst1_2.csv", row.names = 1)
+#View(metadata)
 length(rownames(metadata))
 #Establishing ps object
 taxa_matrix
@@ -48,7 +48,7 @@ ps_object = prune_samples(sample_names(ps_object)!="TKG20152702_S244_L001",ps_ob
 otu_table(ps_object)
 sample_data(ps_object)<-metadata
 ps_object
-View(df)
+#View(df)
 
 #################################################################################
 #DATA PREPROCESSING##############################################################
@@ -77,6 +77,8 @@ ps1 #501 ASVs
 ps2 #400 ASVs
 ps3 #80 ASVs
 ps_object #1173 taxa (original with no filtering)
+
+(unique(tax_table(ps3)))
 
 alphas1 = phyloseq::estimate_richness(ps1) #Not typically used
 alphas2 = phyloseq::estimate_richness(ps2) #Not typically used
@@ -231,14 +233,20 @@ euclidean_dendrogram = function(ps_object){
   unique_values = unique(cst_type[cst_type!=""])
   colors = setNames(rainbow(length(unique_values)), unique_values)
   colors[""] = "black"
+  colors["CSTI"]="blue"
+  colors["CSTIII"]="purple"
+  colors["CSTIV"]="firebrick1"
   ordered_samples = rownames(t(otu_table(ps_object))[clustering$order])
+  for(sample in ordered_samples){
+    cat(sample,sep = "\n")
+  }
   label_colors = colors[cst_type[ordered_samples]]
   
   # Adjust margins to create more space for the text below the plot
-  par(mar = c(20, 4, 4, 2))  # Increase the bottom margin for text labels
+  par(mfrow = c(1,1), xpd=NA)  # Increase the bottom margin for text labels
   
   # Plot dendrogram without labels, but shrink the height to allow space below
-  plot(clustering, labels = FALSE, cex = 0.5, hang=0.2, uniform=TRUE,
+  plot(clustering, labels = FALSE, cex = 0.5, hang=0.2,
        main = "", xlab = "", sub = "", 
        ylim = c(-max(clustering$height) * 10, max(clustering$height) * 1.2))  # Adjust ylim
   
@@ -250,23 +258,43 @@ euclidean_dendrogram = function(ps_object){
   text(leaf_x_positions, 
        labels = ordered_samples, 
        col = label_colors, 
-       srt = 90, adj = 0.5, cex = 0.5)
+       srt = 90, adj = 1.5, cex = 0.5)
 }
-euclidean_dendrogram(ps_css3_baseline)
-
-sample_data(ps_css1)[["CST"]]
 ps_css1_baseline = subset_samples(ps_css1,VisitType=="Baseline")
 ps_css2_baseline = subset_samples(ps_css2,VisitType=="Baseline")
 ps_css3_baseline = subset_samples(ps_css3,VisitType=="Baseline")
 ps_css1_followup = subset_samples(ps_css1,VisitType=="Follow Up")
 ps_css2_followup = subset_samples(ps_css2,VisitType=="Follow Up")
 ps_css3_followup = subset_samples(ps_css3,VisitType=="Follow Up")
+ps1_baseline = subset_samples(ps1,VisitType=="Baseline")
+ps2_baseline = subset_samples(ps2,VisitType=="Baseline")
+ps3_baseline = subset_samples(ps3,VisitType=="Baseline")
+ps1_followup = subset_samples(ps1,VisitType=="Follow Up")
+ps2_followup = subset_samples(ps2,VisitType=="Follow Up")
+ps3_followup = subset_samples(ps3,VisitType=="Follow Up")
+
+euclidean_dendrogram(ps_css3_baseline)
+euclidean_dendrogram(ps_css2_baseline)
+euclidean_dendrogram(ps_css1_baseline)
+euclidean_dendrogram(ps_css3_followup)
+euclidean_dendrogram(ps_css2_followup)
+euclidean_dendrogram(ps_css1_followup)
+
+euclidean_dendrogram(ps3_baseline)
+euclidean_dendrogram(ps2_baseline)
+euclidean_dendrogram(ps1_baseline)
+euclidean_dendrogram(ps3_followup)
+euclidean_dendrogram(ps2_followup)
+euclidean_dendrogram(ps1_followup)
+
+
 
 
 
 #BETA-DIVERSITY PLOTTING
 beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
-  ps_filtered = subset_samples(ps_object, !is.na(VisitType) & VisitType!="")
+  ps_filtered = subset_samples(ps_object, !is.na(concat) & concat!="")
+  print(ps_filtered)
   beta_ordination = ordinate(ps_filtered, method = meth, distance = "bray")
   group_colors = c("#5f9c9d","#d36f6f","#786a87")
   beta_plot = plot_ordination(ps_filtered, ordination = beta_ordination, type = "samples", color = metadata_variable)
@@ -281,13 +309,9 @@ beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
   print(plot)
   ggsave(filename = name,plot = plot,device = "tiff", units="in", width = 6, height=5, dpi=1200)
   filtered_sample_names = sample_names(ps_filtered)
-  #print(filtered_sample_names)
-  metadata_filtered = metadata[metadata$id2 %in% filtered_sample_names, ]
-  #print(table(metadata_filtered$VisitType))
+  metadata_filtered = metadata[metadata$id2 %in% filtered_sample_names,]
   distance_used = phyloseq::distance(physeq = ps_filtered,"bray")
-  #print(distance_used)
-  #print(metadata_filtered)
-  print(pairwise.adonis2(distance_used ~ VisitType, data = metadata_filtered, method="bray",nperm = 999))
+  print(pairwise.adonis2(distance_used ~ concat, data = metadata_filtered, method="bray",nperm = 999))
 }
 
 #Plot by
@@ -296,12 +320,12 @@ f_sam = sample_names(a)
 metadata$VisitType
 metadata[metadata$VisitType %in% filtered_sample_names,]
 
-beta_plotting(ps_css1, "VisitType","bray","NMDS", "NMDS_bray_VisitType_subset_raw.tiff")
-beta_plotting(ps_css2, "VisitType","bray","NMDS", "NMDS_bray_VisitType_subset_soft_filter.tiff")
-beta_plotting(ps_css3, "VisitType","bray","NMDS", "NMDS_bray_VisitType_subset_hard_filter.tiff")
-beta_plotting(ps_css1, "VisitType","jaccard","NMDS", "NMDS_jaccard_VisitType_subset_raw.tiff")
-beta_plotting(ps_css2, "VisitType","jaccard","NMDS", "NMDS_jaccard_VisitType_subset_soft_filter.tiff")
-beta_plotting(ps_css3, "VisitType","jaccard","NMDS", "NMDS_jaccard_VisitType_subset_hard_filter.tiff")
+beta_plotting(ps_css1, "concat","bray","NMDS", "NMDS_bray_cst1.tiff")
+beta_plotting(ps_css2, "concat","bray","NMDS", "NMDS_bray_cst1_soft.tiff")
+beta_plotting(ps_css3, "concat","bray","NMDS", "NMDS_bray_cst1_hard.tiff")
+beta_plotting(ps_css1, "concat","jaccard","NMDS", "NMDS_jaccard_cst1.tiff")
+beta_plotting(ps_css2, "concat","jaccard","NMDS", "NMDS_jaccard_cst1_soft.tiff")
+beta_plotting(ps_css3, "concat","jaccard","NMDS", "NMDS_jaccard_cst1_hard.tiff")
 
 
 
