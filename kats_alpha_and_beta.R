@@ -1,47 +1,59 @@
 #Daniel Castaneda Mogollon, PhD
 #January 7th, 2025
 #Script for Kat's project
-
+#R version = 4.4.3
 
 #################################################################################
 #INTRO###########################################################################
 #################################################################################
+R.version
+#Installing
+install.packages("BiocManager")
+install.packages("remotes")
+install.packages("devtools")
 BiocManager::install("metagenomeSeq")
+BiocManager::install("phyloseq", force = TRUE)
 devtools::install_github("joey711/phyloseq")
 install.packages("dendextend")
 install.packages("ggdendro")
+install.packages("zCompositions")
+install.packages("compositions")
+BiocManager::install("pairwiseAdonis")
+BiocManager::install("biobakery/maaslin3")
+devtools::install_github("joey711/phyloseq", force = TRUE, build_vignettes = FALSE)
+
+
+#Loading libraries
+library("BiocManager")
 library("zCompositions")
 library("compositions")
 library("phyloseq")
 library("metagenomeSeq")
-library("phyloseq")
 library("ggplot2")
 library("pairwiseAdonis")
 library("dendextend")
 library("ggdendro")
 library("dplyr")
+library("maaslin3")
+remove.packages("phyloseq")
+
+#Starting now
 packageVersion("phyloseq")
 path = "/Users/danielcm/Desktop/Sycuro/Projects/Chlamydia/"
 setwd(path)
 df = read.csv("vsearch_dada2_merged_clean_20241107_asv_collapse.csv", header=FALSE)
-#View(df)
 new_sample_names = as.character(unlist(df[1,66:455]))
-asv_table = read.csv("kats_asv_table.csv")  
-#View(asv_table)#Reading the modified file for asv count and samples
+asv_table = read.csv("kats_asv_table.csv")
 asv_table_formatted = otu_table(asv_table, taxa_are_rows = TRUE)
-asv_matrix = as.matrix(asv_table_formatted)
-asv_matrix#Phyloseq needs a matrix to work properly, not a df
+asv_matrix = as.matrix(asv_table_formatted)                                                                     #Phyloseq needs a matrix to work properly, not a df
 colnames(asv_matrix) = new_sample_names
-asv_matrix
-taxa_table = read.csv("kats_taxa_table.csv")        
-#View(taxa_table)#Reading the modified file for taxonomy assignment per asv
+taxa_table = read.csv("kats_taxa_table.csv")                                    #Here the ASVs are mapped to a specific taxa
 taxa_matrix = as.matrix(taxa_table)
 taxa_matrix = tax_table(taxa_matrix)
-metadata = read.csv("kats_metadata_cst1_2.csv", row.names = 1)
-#View(metadata)
-length(rownames(metadata))
+length(rownames(taxa_matrix))
+metadata = read.csv("kats_metadata_followup_and_baseline_cst2.csv", row.names = 1)
+
 #Establishing ps object
-taxa_matrix
 ps_object = phyloseq(asv_matrix,taxa_matrix)                                    #1173 taxa and 390 samples
 ps_object = merge_phyloseq(ps_object, metadata)                                 #Sanity check
 ps_object = prune_samples(sample_names(ps_object)!="TKG20152702_S244_L001",ps_object)
@@ -159,6 +171,7 @@ alphas
 #################################################################################
 
 df_alpha = read.csv("kats_alpha.csv", row.names=1)
+df_alpha
 View(df_alpha)
 df_alpha = as.matrix(df_alpha)
 df_alpha = apply(df_alpha, 2, as.numeric)
@@ -320,15 +333,12 @@ f_sam = sample_names(a)
 metadata$VisitType
 metadata[metadata$VisitType %in% filtered_sample_names,]
 
-beta_plotting(ps_css1, "concat","bray","NMDS", "NMDS_bray_cst1.tiff")
-beta_plotting(ps_css2, "concat","bray","NMDS", "NMDS_bray_cst1_soft.tiff")
-beta_plotting(ps_css3, "concat","bray","NMDS", "NMDS_bray_cst1_hard.tiff")
-beta_plotting(ps_css1, "concat","jaccard","NMDS", "NMDS_jaccard_cst1.tiff")
-beta_plotting(ps_css2, "concat","jaccard","NMDS", "NMDS_jaccard_cst1_soft.tiff")
-beta_plotting(ps_css3, "concat","jaccard","NMDS", "NMDS_jaccard_cst1_hard.tiff")
-
-
-
+beta_plotting(ps_css1, "concat","bray","NMDS", "NMDS_bray_cst4.tiff")
+beta_plotting(ps_css2, "concat","bray","NMDS", "NMDS_bray_cst4_soft.tiff")
+beta_plotting(ps_css3, "concat","bray","NMDS", "NMDS_bray_cst4_hard.tiff")
+beta_plotting(ps_css1, "concat","jaccard","NMDS", "NMDS_jaccard_cst4.tiff")
+beta_plotting(ps_css2, "concat","jaccard","NMDS", "NMDS_jaccard_cst4_soft.tiff")
+beta_plotting(ps_css3, "concat","jaccard","NMDS", "NMDS_jaccard_cst4_hard.tiff")
 
 beta_plotting(ps_css1, "concat","jaccard","PCoA","pcoa_jaccard_cst_baseline_subset_001_and_10.tiff")
 beta_plotting(ps_css2, "concat","bray","PCoA","pcoa_bray_cst_baseline_subset_00001_and_5.tiff")
@@ -362,3 +372,70 @@ beta_plotting("age_at_debut","jaccard","NMDS")
 beta_plotting("age_at_menarche","jaccard","NMDS")
 beta_plotting("monthly_income","jaccard","NMDS")
 beta_plotting("hormone","jaccard","NMDS")
+
+#################################################################################
+#DIFFERENTIAL ABUNDANCE ANALYSIS#################################################
+#################################################################################
+ps_object #Use the raw object without any filtering or removal
+sum(is.na(as.data.frame(tax_table(ps_object))$Species)) #358 are NAs in the Species column
+sum(is.na(as.data.frame(tax_table(ps_object))$Genus)) #Only 41 are NAs in the Genus column
+
+agglomeration = function(ps_object, taxa_rank, with_NAs){ #This gets rid of the ASV column, and merges by species
+  new_tax_table = tax_table(ps_object)[,colnames(tax_table(ps_object))!="X"]
+  tax_table(ps_object) = new_tax_table
+  if(with_NAs==TRUE){
+    ps_object_grouped = tax_glom(ps_object,taxrank = taxa_rank, NArm=FALSE)
+  }
+  else{
+    ps_object_grouped = tax_glom(ps_object,taxrank = taxa_rank, NArm = TRUE)
+  }
+  df_genus_and_species = as.data.frame(tax_table(ps_object_grouped))
+  df_genus_and_species$genus_species = paste(df_genus_and_species$Genus,df_genus_and_species$Species)
+  df_genus_and_species$genus_species = gsub("\\s+"," ",df_genus_and_species$genus_species)
+  tax_table(ps_object_grouped) = cbind(tax_table(ps_object_grouped),genus_species = df_genus_and_species$genus_species)
+  rownames(tax_table(ps_object_grouped)) = df_genus_and_species$genus_species
+  rownames(otu_table(ps_object_grouped)) = df_genus_and_species$genus_species
+  unique_taxa = length(unique(tax_table(ps_object_grouped)[,"genus_species"])) #Counts the number of unique genus species denomination
+  length_taxa = length(tax_table(ps_object_grouped)[,"Species"]) #Counts the number of rows in the species column
+  print(paste0("The number of unique species is ",unique_taxa,
+               " and the number of total species is ",length_taxa)) #This numbers should match!
+  return(ps_object_grouped)
+}
+#This next 7 lines of code allowe me to modify the rownames of the otu table and tax table to the genus and species
+ps_species = agglomeration(ps_object,"Species",FALSE)
+tax_df = as.data.frame(tax_table(ps_species))
+otu_df = as.data.frame(otu_table(ps_species))
+rownames(tax_df) = tax_df$genus_species
+tax_table(ps_species) = NULL
+rownames(otu_table(ps_species)) = tax_df$genus_species
+tax_table(ps_species) = as.matrix(tax_df)
+identical(rownames(tax_table(ps_species)),rownames(otu_table(ps_species))) #Confirms that the names match both 'matrices'
+
+#Pruning by visit type empty
+visit_type = as.character(sample_data(ps_species)$VisitType)
+good_visit = !is.na(visit_type) & !grepl("^[[:space:]]*$", visit_type)
+ps_species_visit = prune_samples(good_visit, ps_species)
+
+#Pruning by CST empty
+cst_type = as.character(sample_data(ps_species)$CST)
+good_cst = !is.na(cst_type) & !grepl("^[[:space:]]*$", cst_type)
+ps_species_cst = prune_samples(good_cst, ps_species)
+
+
+#Running maaslin3, only species abundance and metadata file are required
+metadata_species_visit = as.data.frame(as.matrix(sample_data(ps_species_visit)))
+otu_table_species_visit = t(as.data.frame(otu_table(ps_species_visit)))
+metadata_species_cst = as.data.frame(as.matrix(sample_data(ps_species_cst)))
+otu_table_species_cst = t(as.data.frame(otu_table(ps_species_cst)))
+
+maaslin3(input_data = otu_table_species_visit,input_metadata = metadata_species_visit,
+         output = "Visit_type_maaslin3",fixed_effects = "VisitType",
+         normalization = "TSS",transform = "LOG")
+
+maaslin3(input_data = otu_table_species_cst, input_metadata = metadata_species_cst, 
+         output = "CST1_maaslin3", fixed_effects = "CST", normalization = "TSS",
+         transform = "LOG", reference = "CST,CSTI")
+
+maaslin3(input_data = otu_table_species_cst, input_metadata = metadata_species_cst, 
+         output = "CST3_maaslin3", fixed_effects = "CST", normalization = "TSS",
+         transform = "LOG", reference = "CST,CSTIII")
