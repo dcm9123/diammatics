@@ -18,9 +18,11 @@ install.packages("dendextend")
 install.packages("ggdendro")
 install.packages("zCompositions")
 install.packages("compositions")
+install.packages("pairwise")
 BiocManager::install("pairwiseAdonis")
 BiocManager::install("biobakery/maaslin3")
 devtools::install_github("joey711/phyloseq", force = TRUE, build_vignettes = FALSE)
+devtools::install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
 
 
 #Loading libraries
@@ -51,14 +53,14 @@ taxa_table = read.csv("kats_taxa_table.csv")                                    
 taxa_matrix = as.matrix(taxa_table)
 taxa_matrix = tax_table(taxa_matrix)
 length(rownames(taxa_matrix))
-metadata = read.csv("kats_metadata_followup_and_baseline_cst2.csv", row.names = 1)
+metadata = read.csv("kats_metadata_confounders.csv", row.names = 1)
 
 #Establishing ps object
 ps_object = phyloseq(asv_matrix,taxa_matrix)                                    #1173 taxa and 390 samples
 ps_object = merge_phyloseq(ps_object, metadata)                                 #Sanity check
 ps_object = prune_samples(sample_names(ps_object)!="TKG20152702_S244_L001",ps_object)
 otu_table(ps_object)
-sample_data(ps_object)<-metadata
+sample_data(ps_object) = metadata
 ps_object
 #View(df)
 
@@ -88,7 +90,7 @@ ps1 = ps_non_zeros #ps3 to use (raw)
 ps1 #501 ASVs
 ps2 #400 ASVs
 ps3 #80 ASVs
-ps_object #1173 taxa (original with no filtering)
+ps_object #1173 taxa (original with no filtering) #Skip line 92 to line 183 if not doing Alpha-diversity
 
 (unique(tax_table(ps3)))
 
@@ -301,15 +303,12 @@ euclidean_dendrogram(ps2_followup)
 euclidean_dendrogram(ps1_followup)
 
 
-
-
-
 #BETA-DIVERSITY PLOTTING
 beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
-  ps_filtered = subset_samples(ps_object, !is.na(concat) & concat!="")
+  ps_filtered = subset_samples(ps_object, !is.na(had_debut) & had_debut!="")
   print(ps_filtered)
   beta_ordination = ordinate(ps_filtered, method = meth, distance = "bray")
-  group_colors = c("#5f9c9d","#d36f6f","#786a87")
+  group_colors = c("#5f9c9d","#d36f6f","#786a87","violet","gray")
   beta_plot = plot_ordination(ps_filtered, ordination = beta_ordination, type = "samples", color = metadata_variable)
   plot<-beta_plot + scale_color_manual(values = group_colors)+stat_ellipse(alpha = 0.20, geom = "polygon", aes(fill = !!sym(metadata_variable)), show.legend=FALSE) +
     scale_fill_manual(values = group_colors) + 
@@ -324,14 +323,11 @@ beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
   filtered_sample_names = sample_names(ps_filtered)
   metadata_filtered = metadata[metadata$id2 %in% filtered_sample_names,]
   distance_used = phyloseq::distance(physeq = ps_filtered,"bray")
-  print(pairwise.adonis2(distance_used ~ concat, data = metadata_filtered, method="bray",nperm = 999))
+  print(pairwiseAdonis::pairwise.adonis2(distance_used ~ had_debut, data = metadata_filtered, method="bray",nperm = 999))
 }
 
 #Plot by
-a = subset_samples(ps_object, !is.na(VisitType) & VisitType!="")
-f_sam = sample_names(a)
-metadata$VisitType
-metadata[metadata$VisitType %in% filtered_sample_names,]
+
 
 beta_plotting(ps_css1, "concat","bray","NMDS", "NMDS_bray_cst4.tiff")
 beta_plotting(ps_css2, "concat","bray","NMDS", "NMDS_bray_cst4_soft.tiff")
@@ -357,6 +353,15 @@ beta_plotting(ps_css2, "concat", "euclidean", "PCoA", "PCA_eulcidean_cst_follow_
 beta_plotting(ps_clr1, "concat", "euclidean", "PCoA","pcoa_euclidean_cst_follow_subset_clr_001_and_10.tiff")
 beta_plotting(ps_clr2, "concat", "euclidean", "PCoA", "pcoa_euclidean_cst_follow_subset_clr_00001_and_5.tiff")
 
+beta_plotting(ps_css1, "had_debut","bray","NMDS", "NMDS_bray_debut.tiff")
+beta_plotting(ps_css2, "had_debut","bray","NMDS", "NMDS_bray_debut_soft.tiff")
+beta_plotting(ps_css3, "had_debut","bray","NMDS", "NMDS_bray_debut_hard.tiff")
+
+beta_plotting(ps_css1, "condom_use","bray","NMDS", "NMDS_bray_condom.tiff")
+
+
+
+
 ps_clr1
 ps_clr2
 
@@ -380,46 +385,56 @@ ps_object #Use the raw object without any filtering or removal
 sum(is.na(as.data.frame(tax_table(ps_object))$Species)) #358 are NAs in the Species column
 sum(is.na(as.data.frame(tax_table(ps_object))$Genus)) #Only 41 are NAs in the Genus column
 
-agglomeration = function(ps_object, taxa_rank, with_NAs){ #This gets rid of the ASV column, and merges by species
-  new_tax_table = tax_table(ps_object)[,colnames(tax_table(ps_object))!="X"]
-  tax_table(ps_object) = new_tax_table
+agglomeration = function(ps_object, with_NAs){
+  original_otu_table = as.data.frame(otu_table(ps_object)) #Retains the original otu_table
+  original_taxa_table = as.data.frame(tax_table(ps_object))#Retains the original taxa table
+  removed_x_taxa_table = original_taxa_table[,colnames(original_taxa_table)!="X"]
+  removed_x_taxa_table$genus_species = paste(removed_x_taxa_table$Genus,removed_x_taxa_table$Species)
+  removed_x_taxa_table$genus_species = gsub("\\s+"," ",removed_x_taxa_table$genus_species) #Ensures I only have one white space between genus and species
+  removed_x_taxa_table = removed_x_taxa_table[removed_x_taxa_table$genus_species!="NA NA",]
+  tax_table(ps_object) = as.matrix(removed_x_taxa_table)
   if(with_NAs==TRUE){
-    ps_object_grouped = tax_glom(ps_object,taxrank = taxa_rank, NArm=FALSE)
+    ps_object = tax_glom(ps_object,taxrank = "genus_species", NArm=FALSE)
   }
   else{
-    ps_object_grouped = tax_glom(ps_object,taxrank = taxa_rank, NArm = TRUE)
+    ps_object = tax_glom(ps_object,taxrank = "genus_species", NArm = TRUE)
   }
-  df_genus_and_species = as.data.frame(tax_table(ps_object_grouped))
-  df_genus_and_species$genus_species = paste(df_genus_and_species$Genus,df_genus_and_species$Species)
-  df_genus_and_species$genus_species = gsub("\\s+"," ",df_genus_and_species$genus_species)
-  tax_table(ps_object_grouped) = cbind(tax_table(ps_object_grouped),genus_species = df_genus_and_species$genus_species)
-  rownames(tax_table(ps_object_grouped)) = df_genus_and_species$genus_species
-  rownames(otu_table(ps_object_grouped)) = df_genus_and_species$genus_species
-  unique_taxa = length(unique(tax_table(ps_object_grouped)[,"genus_species"])) #Counts the number of unique genus species denomination
-  length_taxa = length(tax_table(ps_object_grouped)[,"Species"]) #Counts the number of rows in the species column
+  df_tax_table = as.data.frame(tax_table(ps_object))
+  row_names_taxa_table = df_tax_table$genus_species
+  tax_table(ps_object) = NULL
+  row.names(otu_table(ps_object)) = row_names_taxa_table
+  row.names(df_tax_table) = row_names_taxa_table
+  tax_table(ps_object) = as.matrix(df_tax_table)
+  unique_taxa = length(unique(tax_table(ps_object)[,"genus_species"])) #Counts the number of unique genus species denomination
+  length_taxa = length(tax_table(ps_object)[,"Species"]) #Counts the number of rows in the species column
   print(paste0("The number of unique species is ",unique_taxa,
                " and the number of total species is ",length_taxa)) #This numbers should match!
-  return(ps_object_grouped)
+  return(ps_object)
 }
-#This next 7 lines of code allowe me to modify the rownames of the otu table and tax table to the genus and species
-ps_species = agglomeration(ps_object,"Species",FALSE)
-tax_df = as.data.frame(tax_table(ps_species))
-otu_df = as.data.frame(otu_table(ps_species))
-rownames(tax_df) = tax_df$genus_species
-tax_table(ps_species) = NULL
-rownames(otu_table(ps_species)) = tax_df$genus_species
-tax_table(ps_species) = as.matrix(tax_df)
-identical(rownames(tax_table(ps_species)),rownames(otu_table(ps_species))) #Confirms that the names match both 'matrices'
 
-#Pruning by visit type empty
+ps_species = agglomeration(ps_object,with_NAs = FALSE)
+ps_species #From ~1200 to 510 taxa after removing NAs and grouping same species!
+sample_data(ps_species)
+
+#Pruning bps_object#Pruning by visit type empty
 visit_type = as.character(sample_data(ps_species)$VisitType)
-good_visit = !is.na(visit_type) & !grepl("^[[:space:]]*$", visit_type)
+good_visit = !is.na(visit_type) & !grepl("^[[:space:]]*$", visit_type) #Removes empty spaces into account 
 ps_species_visit = prune_samples(good_visit, ps_species)
+sample_data(ps_species_visit)
 
 #Pruning by CST empty
 cst_type = as.character(sample_data(ps_species)$CST)
-good_cst = !is.na(cst_type) & !grepl("^[[:space:]]*$", cst_type)
+good_cst = !is.na(cst_type) & !grepl("^[[:space:]]*$", cst_type) #Removes empty spaces into account 
 ps_species_cst = prune_samples(good_cst, ps_species)
+
+#Pruning by Chlamydia VisitType & zeros
+ps_species_lacto = subset_samples(physeq = ps_species,Lacto_Dominance=="Dom") #From 116 samples to 83
+ps_species_lacto = subset_samples(ps_species_lacto,VisitType!="Chlamydia")#Went down to 54 samples
+ps_species_lacto = prune_taxa(taxa_sums(ps_species_lacto) > 0, ps_species_lacto) #Species from 510 to 116
+
+ps_species_cst1 = subset_samples(ps_species,CST=="CSTI") #From 116 samples to 33
+ps_species_cst1 = subset_samples(ps_species_cst1, VisitType!="Chlamydia") #Went down to 24
+ps_species_cst1 = prune_taxa(taxa_sums(ps_species_cst1)>0, ps_species_cst1) #Species from 510 to 107 taxa
 
 
 #Running maaslin3, only species abundance and metadata file are required
@@ -427,6 +442,11 @@ metadata_species_visit = as.data.frame(as.matrix(sample_data(ps_species_visit)))
 otu_table_species_visit = t(as.data.frame(otu_table(ps_species_visit)))
 metadata_species_cst = as.data.frame(as.matrix(sample_data(ps_species_cst)))
 otu_table_species_cst = t(as.data.frame(otu_table(ps_species_cst)))
+metadata_species_lacto = as.data.frame(as.matrix(sample_data(ps_species_lacto)))
+otu_table_species_lacto = t(as.data.frame(otu_table(ps_species_lacto)))
+metadata_species_cst1 = as.data.frame(as.matrix(sample_data(ps_species_cst1)))
+otu_table_species_cst1 = t(as.data.frame(otu_table(ps_species_cst1)))
+
 
 maaslin3(input_data = otu_table_species_visit,input_metadata = metadata_species_visit,
          output = "Visit_type_maaslin3",fixed_effects = "VisitType",
@@ -439,3 +459,29 @@ maaslin3(input_data = otu_table_species_cst, input_metadata = metadata_species_c
 maaslin3(input_data = otu_table_species_cst, input_metadata = metadata_species_cst, 
          output = "CST3_maaslin3", fixed_effects = "CST", normalization = "TSS",
          transform = "LOG", reference = "CST,CSTIII")
+
+maaslin3(input_data = otu_table_species_lacto, input_metadata = metadata_species_lacto,
+         output = "Lacto_dominant_raw_maaslin3", fixed_effects = "VisitType", normalization = "TSS",
+         transform = "LOG")
+
+maaslin3(input_data = otu_table_species_lacto, input_metadata = metadata_species_lacto,
+         output = "Lacto_dominant_soft_maaslin3", fixed_effects = "VisitType", normalization = "TSS",
+         transform = "LOG",min_abundance = 0.000001) #76 species after filtering
+
+maaslin3(input_data = otu_table_species_lacto, input_metadata = metadata_species_lacto,
+         output = "Lacto_dominant_hard_maaslin3", fixed_effects = "VisitType", normalization = "TSS",
+         transform = "LOG",min_abundance = 0.000001, min_prevalence = 0.05) 
+
+maaslin3(input_data = otu_table_species_cst1, input_metadata = metadata_species_cst1,
+         output = "CSTI_raw_maaslin3", fixed_effects = "VisitType", normalization = "TSS",
+         transform = "LOG")
+
+maaslin3(input_data = otu_table_species_cst1, input_metadata = metadata_species_cst1,
+         output = "CSTI_soft_maaslin3", fixed_effects = "VisitType", normalization = "TSS",
+         transform = "LOG", min_abundance = 0.000001)
+
+maaslin3(input_data = otu_table_species_cst1, input_metadata = metadata_species_cst1,
+         output = "CSTI_hard_maaslin3", fixed_effects = "VisitType", normalization = "TSS",
+         transform = "LOG", min_abundance = 0.000001, min_prevalence = 0.05)
+
+sample_data(ps_species)
