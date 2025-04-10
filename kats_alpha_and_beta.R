@@ -18,8 +18,9 @@ install.packages("dendextend")
 install.packages("ggdendro")
 install.packages("zCompositions")
 install.packages("compositions")
-install.packages("pairwise")
-BiocManager::install("pairwiseAdonis")
+install.packages("pairwiseAdonis2")
+install.packages("lattice")
+BiocManager::install("pairwiseAdonis2")
 BiocManager::install("biobakery/maaslin3")
 devtools::install_github("joey711/phyloseq", force = TRUE, build_vignettes = FALSE)
 devtools::install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
@@ -37,7 +38,6 @@ library("dendextend")
 library("ggdendro")
 library("dplyr")
 library("maaslin3")
-remove.packages("phyloseq")
 
 #Starting now
 packageVersion("phyloseq")
@@ -92,7 +92,6 @@ ps2 #400 ASVs
 ps3 #80 ASVs
 ps_object #1173 taxa (original with no filtering) #Skip line 92 to line 183 if not doing Alpha-diversity
 
-(unique(tax_table(ps3)))
 
 alphas1 = phyloseq::estimate_richness(ps1) #Not typically used
 alphas2 = phyloseq::estimate_richness(ps2) #Not typically used
@@ -305,10 +304,9 @@ euclidean_dendrogram(ps1_followup)
 
 #BETA-DIVERSITY PLOTTING
 beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
-  ps_filtered = subset_samples(ps_object, !is.na(had_debut) & had_debut!="")
-  print(ps_filtered)
+  ps_filtered = subset_samples(ps_object, !is.na(Yrs_quartile) & Yrs_quartile!="")
   beta_ordination = ordinate(ps_filtered, method = meth, distance = "bray")
-  group_colors = c("#5f9c9d","#d36f6f","#786a87","violet","gray")
+  group_colors = c("#5f9c9d","#d36f6f","#786a87","#c4b7a6")
   beta_plot = plot_ordination(ps_filtered, ordination = beta_ordination, type = "samples", color = metadata_variable)
   plot<-beta_plot + scale_color_manual(values = group_colors)+stat_ellipse(alpha = 0.20, geom = "polygon", aes(fill = !!sym(metadata_variable)), show.legend=FALSE) +
     scale_fill_manual(values = group_colors) + 
@@ -323,7 +321,9 @@ beta_plotting<-function(ps_object, metadata_variable, dist, meth, name){
   filtered_sample_names = sample_names(ps_filtered)
   metadata_filtered = metadata[metadata$id2 %in% filtered_sample_names,]
   distance_used = phyloseq::distance(physeq = ps_filtered,"bray")
-  print(pairwiseAdonis::pairwise.adonis2(distance_used ~ had_debut, data = metadata_filtered, method="bray",nperm = 999))
+  adonis_results = pairwise.adonis2(distance_used ~ Yrs_quartile, data = metadata_filtered, method="bray",nperm = 999,)
+  adonis_results$p.adjusted = p.adjust(adonis_results$p.value, method = "fdr")
+  print(adonis_results)
 }
 
 #Plot by
@@ -358,8 +358,20 @@ beta_plotting(ps_css2, "had_debut","bray","NMDS", "NMDS_bray_debut_soft.tiff")
 beta_plotting(ps_css3, "had_debut","bray","NMDS", "NMDS_bray_debut_hard.tiff")
 
 beta_plotting(ps_css1, "condom_use","bray","NMDS", "NMDS_bray_condom.tiff")
+beta_plotting(ps_css2, "condom_use","bray","NMDS", "NMDS_bray_condom_soft.tiff")
+beta_plotting(ps_css3, "condom_use","bray","NMDS", "NMDS_bray_condom_hard.tiff")
+
+beta_plotting(ps_css1, "Yrs_quartile","bray","NMDS", "NMDS_bray_yrs_debut.tiff")
+beta_plotting(ps_css2, "Yrs_quartile","bray","NMDS", "NMDS_bray_yrs_debut_soft.tiff")
+beta_plotting(ps_css3, "Yrs_quartile","bray","NMDS", "NMDS_bray_yrs_debut_hard.tiff")
 
 
+
+metadata$Yrs_since_debut
+
+sample_data(ps_css1)
+
+pairwiseAdonis::
 
 
 ps_clr1
