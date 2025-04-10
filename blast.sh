@@ -1,1 +1,1 @@
-for dir in *; do cd $dir; blastn -query 16S_prokka*.fasta -db /bulk/IMCshared_bulk/shared/dbs/GTDB_16S_r220/GTDB_16S_species -out 16S_blast_${dir}.txt -outfmt "7 salltitles bitscore score evalue pident qcovhsp"; cd ..; done;
+for dir in *; do cd $dir; echo $dir; blastn -query 16S_prokka*.fasta -db /bulk/IMCshared_bulk/shared/dbs/GTDB_16S_r220/GTDB_16S_species -out ../16S_blast_${dir}.csv -outfmt "10 qseqid salltitles bitscore score evalue pident qcovhsp"; cd ..; done;
