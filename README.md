@@ -3,4 +3,3 @@ This repository has been made in order to include all sorts of codes, lines of c
 
 More code to follow
 
-![alt text](https://github.com/dcm9123/diammatics/blob/main/DALL%C2%B7E%202025-%20desk%2C%20writing%20b.webp)
