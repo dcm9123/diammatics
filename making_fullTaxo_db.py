@@ -34,9 +34,9 @@ with (open(in_fasta,"r")) as f:
                 print(new_header2)
             if line2 not in full_species_dict:
                 print(f"Not found in full_species_dict: {line2}")
-            #taxo_db.write(new_header+"\n")
+            taxo_db.write(new_header+"\n")
             species_db.write(new_header2+"\n")
         else:
-            #taxo_db.write(line+"\n")
+            taxo_db.write(line+"\n")
             species_db.write(line+"\n")
 
