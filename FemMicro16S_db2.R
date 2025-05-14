@@ -11,40 +11,65 @@ purge("Maaslin2")
 remotes::install_github(repo="biobakery/Maaslin2", force=TRUE)
 remotes::install_github("biobakery/Maaslin2")
 
-#Loading packages
-library("metagMisc")
-library("decontam")
-library("phyloseq")
-library("ggplot2")
-library("normalize")
-library("dplyr")
-library("ALDEx2")
-library("ANCOMBC")
-library("vegan")
-library("microbiomeMarker")
-library("tidyr")
-library("Bios2cor")
-library("zoo")
-library("patchwork")
-library("Maaslin2")
-library("devtools")
-library("pairwiseAdonis")
-library("DESeq2")
-library("gplots")
-library("reshape2")
-
-
+#LOADING PACKAGES
+loading_packages = function(){
+  library("metagMisc")
+  library("decontam")
+  library("phyloseq")
+  library("ggplot2")
+  library("normalize")
+  library("dplyr")
+  library("ALDEx2")
+  library("ANCOMBC")
+  library("vegan")
+  library("microbiomeMarker")
+  library("tidyr")
+  library("Bios2cor")
+  library("zoo")
+  library("patchwork")
+  library("Maaslin2")
+  library("devtools")
+  library("pairwiseAdonis")
+  library("DESeq2")
+  library("gplots")
+  library("reshape2")
+}
 
 ###INITIALIZING PATH AND FILE LOCATION
 path = "/Users/danielcm/Desktop/Sycuro/Projects/Diabetes/t1d_db_fixed_discussed/FemMicro_Daniel/"
 setwd(path)                                                                     #Setting the path of where Im working
 
 ###RETRIEVING NOCHIMERIC OBJECTS AS RDS FILES
-seqtab_nochim_p1 = readRDS(file = "plate1/seqtab_nochimeras_p1.rds")  #Reading the non-chimeric sequences from FemMicro using the updated db.
-seqtab_nochim_p2 = readRDS(file = "plate2/seqtab_nochimeras_p2.rds")
-seqtab_nochim_p3 = readRDS(file = "plate3/seqtab_nochimeras_p3.rds")
-seqtab_nochim_p4 = readRDS(file = "plate4/seqtab_nochimeras_p4.rds")
-seqtab_nochim_p5 = readRDS(file = "plate5/seqtab_nochimeras_p5.rds")
+retrieving_nonchimera_obj = function(){
+  seqtab_nochim_p1 = readRDS(file = "plate1/seqtab_nochimeras_m_p1.rds")  #Reading the non-chimeric sequences from FemMicro using the updated db.
+  seqtab_nochim_p2 = readRDS(file = "plate2/seqtab_nochimeras_m_p2.rds")
+  seqtab_nochim_p3 = readRDS(file = "plate3/seqtab_nochimeras_m_p3.rds")
+  seqtab_nochim_p4 = readRDS(file = "plate4/seqtab_nochimeras_m_p4.rds")
+  seqtab_nochim_p5 = readRDS(file = "plate5/seqtab_nochimeras_m_p5.rds")
+}
+
+###MODIFYING RDS OBJECTS BY ADDING WORD 'PLATE' TO EACH SAMPLE
+reshaping_rds_objects = function(){
+  obj1 = readRDS("plate1/seqtab_nochimeras_p1.rds")
+  rownames(obj1) = paste0("Plate1_",rownames(obj1))
+  saveRDS(obj1,"plate1/seqtab_nochimeras_m_p1.rds")
+  
+  obj2 = readRDS("plate2/seqtab_nochimeras_p2.rds")
+  rownames(obj2) = paste0("Plate2_",rownames(obj2))
+  saveRDS(obj2,"plate2/seqtab_nochimeras_m_p2.rds")
+  
+  obj3 = readRDS("plate3/seqtab_nochimeras_p3.rds")
+  rownames(obj3) = paste0("Plate3_",rownames(obj3))
+  saveRDS(obj3,"plate3/seqtab_nochimeras_m_p3.rds")
+  
+  obj4 = readRDS("plate4/seqtab_nochimeras_p4.rds")
+  rownames(obj4) = paste0("Plate4_",rownames(obj4))
+  saveRDS(obj4,"plate4/seqtab_nochimeras_m_p4.rds")
+  
+  obj5 = readRDS("plate5/seqtab_nochimeras_p5.rds")
+  rownames(obj5) = paste0("Plate5_",rownames(obj5))
+  saveRDS(obj5,"plate5/seqtab_nochimeras_m_p5.rds")
+}
 
 ###INITIALIZING METADATA FILE STRUCTURING
 initializing = function(variable){
@@ -121,7 +146,6 @@ initializing = function(variable){
   }
 
 ###INITIALIZING TAXONOMY AND PHYLOSEQ OBJECT GENERATION
-
 taxonomy_and_ps = function(file_taxa, seqtab_nochim, samdf){
   taxa_table<-read.table(file_taxa, header=TRUE)                             #This reads the taxonomy table from GTDB by the femmicro pipeline
   taxa_table = taxa_table[,c(2,4,5,6,7,8,9,10)]
@@ -226,13 +250,14 @@ retrieving_info = function(ps_merged){
 }
 
 ###SUBSETTING MERGED PS BY VARIABLE
-positive_ctrl_ps_merged = function(ps_object){
+subsetting_merged_plate = function(ps_object){
   ps_merged_weeks = subset_samples(ps_merged, grepl("week",sample_data(ps_merged)$Timepoint, ignore.case=TRUE))
   ps_merged_weeks = prune_taxa(taxa_sums(ps_merged_weeks)>0,ps_merged_weeks)
   weeks_sample_total = sample_sums(ps_merged_weeks)
   write.csv(weeks_sample_total, "sample_total_count_weeks.csv")
   
   ps_merged_positive = subset_samples(ps_merged, grepl("positive|postive", sample_data(ps_merged)$ID, ignore.case=TRUE))
+  print(ps_merged_positive)
   ps_merged_positive = prune_taxa(taxa_sums(ps_merged_positive)>0,ps_merged_positive)
   positive_sample_total = sample_sums(ps_merged_positive)
   write.csv(positive_sample_total,"sample_total_count_positives.csv")
@@ -246,9 +271,65 @@ positive_ctrl_ps_merged = function(ps_object){
   ps_merged_negative = prune_taxa(taxa_sums(ps_merged_negative)>0,ps_merged_negative)
   negative_sample_total = sample_sums(ps_merged_negative)
   write.csv(negative_sample_total,"sample_total_count_negatives.csv")
+  
+  ps_list = list(ps_merged_weeks,ps_merged_inocula,ps_merged_positive,ps_merged_negative)
+  return(ps_list)
 }
 
+###ENGRAFTMENT AND CONTAMINATION ANALYSIS INOCULA
+engraftment_and_contamination_inocula = function(ps_object, master_file){
+  df_master = read.csv(master_file, header=TRUE)
+  df_inocula_ns1 = subset(df_master, Selected_for_Downstream %in% "Yes" & Consortia %in% "NS1", 
+                          select = c("Sample.ID", "Consortia", "GTDBtk_Species_Classification"))
+  df_inocula_ns6 = subset(df_master, Selected_for_Downstream %in% "Yes" & Consortia %in% "NS6", 
+                          select = c("Sample.ID", "Consortia", "GTDBtk_Species_Classification"))
+  df_inocula_s2 = subset(df_master, Selected_for_Downstream %in% "Yes" & Consortia %in% "S2", 
+                         select = c("Sample.ID", "Consortia", "GTDBtk_Species_Classification"))
+  df_inocula_s5 = subset(df_master, Selected_for_Downstream %in% "Yes" & Consortia %in% "S5", 
+                         select = c("Sample.ID", "Consortia", "GTDBtk_Species_Classification"))
+  ns1_asv_genomes = unique(df_inocula_ns1$GTDBtk_Species_Classification)
+  ns6_asv_genomes = unique(df_inocula_ns6$GTDBtk_Species_Classification)
+  s2_asv_genomes = unique(df_inocula_s2$GTDBtk_Species_Classification)
+  s5_asv_genomes = unique(df_inocula_s5$GTDBtk_Species_Classification)
+}
 
+###ENGRAFTMENT AND CONTAMINATION ANALYSIS POSITIVES
+engraftment_and_contamination_positives = function(ps_object){
+  
+  positive_control_genus = c("Bacillus","Listeria","Staphylococcus","Enterococcus","Lactobacillus, Salmonella",
+                             "Escherichia","Pseudomonas")
+  positive_control_species = c("Bacillus subtillis","Listeria monocytogenes","Staphylococcus aureus",
+                               "Enterococcus faecalis","Lactobacillus fermentum","Salmonella enterica",
+                               "Escherichia coli","Pseudomonas aeruginosa")                               #From ZYMObiomics
+  ps_merged_positive = ps_object
+  ps_pos1 = subset_samples(ps_merged_positive, sample_data(ps_merged_positive)$ID=="Plate1_Positive_control_S89_L001")
+  ps_pos1 = prune_taxa(taxa_sums(ps_pos1)>0, ps_pos1)
+  #Genus first
+  cat("There are a total of 8 genera in the Zymobiomics positive control: ","\n")
+  cat(positive_control_genus,sep=", \n","\n")
+  ps_pos_genus = tax_glom(ps_pos1, taxrank="genus_final", NArm = FALSE)
+  ps_pos_genus_df = as.data.frame(tax_table(ps_pos_genus))
+  cat("--------GENUS--------","\n")
+  cat("The genera overlapping both the microbial community and the ones found in the Plate1_Positive are: ","\n")
+  cat(intersect(positive_control_genus, ps_pos_genus_df$genus_final), sep=", \n","\n")
+  cat("The genera that should be there but are not in the Plate1_Positive are: ","\n")
+  cat(setdiff(positive_control_genus,ps_pos_genus_df$genus_final), sep=", \n","\n")
+  cat("The genera found that are not supposed to be in the Plate1_Positive are: ","\n")
+  cat(setdiff(ps_pos_genus_df$genus_final,positive_control_genus),sep=", \n","\n")
+  
+  cat("--------SPECIES--------")
+  cat("There are a total of 8 species in the Zymobiomics positive control: ","\n")
+  cat(positive_control_species,sep=", \n","\n")
+  ps_pos1_species = tax_glom(ps_pos1, taxrank = "species_final", NArm = FALSE)
+  ps_pos1_species_df = as.data.frame(tax_table(ps_pos1_species))
+  ps_pos1_species_df$genus_and_species = paste(ps_pos1_species_df$genus_final,ps_pos1_species_df$species_final, sep=" ")
+  cat("The species overlapping both the microbial community and the ones found in the Plate1_Positive are: ","\n")
+  cat(intersect(positive_control_species, ps_pos1_species_df$genus_and_species), sep=", \n","\n")
+  cat("The species that should be there but are not in the Plate1_Positive are: ","\n")
+  cat(setdiff(positive_control_species,ps_pos1_species_df$genus_and_species), sep=", \n","\n")
+  cat("The species found that are not supposed to be in the Plate1_Positive are: ","\n")
+  cat(setdiff(ps_pos1_species_df$genus_and_species,positive_control_species),sep=", \n","\n")
+}
 
 ###COUNTING TAXA AND READS ACROSS PS OBJECTS AND SUBSETS
 ps
@@ -616,7 +697,11 @@ deseq2_object = DESeq2::DESeq(deseq2_object, test="Wald",fitType = "mean")
 
 #MOTHER BOARD
 path = "/Users/danielcm/Desktop/Sycuro/Projects/Diabetes/t1d_db_fixed_discussed/FemMicro_Daniel/"
-setwd(path)   
+setwd(path)  
+
+loading_packages()
+reshaping_rds_objects()
+retrieving_nonchimera_obj()
 
 samdf1 = initializing(seqtab_nochim_p1)
 samdf2 = initializing(seqtab_nochim_p2)
@@ -649,8 +734,17 @@ counting_asvs("plate4/final_merged_tables/plate4_vsearch_dada2_merged.tsv")
 counting_asvs("plate5/final_merged_tables/plate5_vsearch_dada2_merged.tsv")
 
 ps_merged = merging_runs(ps1,ps2,ps3,ps4,ps5)
+ps_merged
 
 retrieving_info(ps_merged)
 
-positive_ctrl_ps_merged(ps_merged)
+ps_merged_by_group = subsetting_merged_plate(ps_merged)
+ps_merged_weeks = ps_merged_by_group[[1]]
+ps_merged_inocula = ps_merged_by_group[[2]]
+ps_merged_positive = ps_merged_by_group[[3]]
+ps_merged_negative = ps_merged_by_group[[4]]
+
+engraftment_and_contamination_positives(ps_merged_positive)
+sample_data(ps_merged_positive)
+engrafment_and_contamination_positives(ps_merged_positive)
 
