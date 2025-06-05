@@ -1,0 +1,1 @@
+tblastn -db renamed_genomes/all_genomes_db -query mimotope_list.fasta -out mimotope_output/results.txt -word_size 2 -evalue 1000 -seg no -num_threads 14 -matrix PAM30 -outfmt "6 qseqid sseqid qstart qend sstart send qseq sseq evalue bitscore score pident nident mismatch sframe qcovs qcovhsp"
