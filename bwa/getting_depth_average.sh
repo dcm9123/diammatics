@@ -1,5 +1,9 @@
 #This script highlights the basics of bwa indexing and aligning
 
+#Referencing the genome fasta files
+bwa index <reference.fa>
+
+#Aligning forward and reverse reads
 bwa mem <ref.fasta> -t 32 <R1.fastq> <R2.fastq> > <sam_output.sam>
 
 #Simple conversion from bam to sam, telling samtools that the input is sam.file (-S) and the output is .bam (-b)
