@@ -1,7 +1,7 @@
 #Daniel Castaneda Mogollon, PhD
 #06/15/2025
 
-#This script highlights the basics of bwa indexing and aligning
+#This script highlights the basics of bwa indexing and aligning.
 
 #Referencing the genome fasta files
 bwa index <reference.fa>
