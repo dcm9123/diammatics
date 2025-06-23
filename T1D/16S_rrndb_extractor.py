@@ -70,10 +70,19 @@ for list in [species_overlap,species_alt_overlap]:
         count_16S = data_16S.count()
         overlap_dict[item] = {'Count':count_16S,'Median 16S':median_16S,'Minimum 16S':min_16S,'Maximum 16S':max_16S}
     df_16S = pd.DataFrame.from_dict(overlap_dict, orient='index').reset_index()
+    df_16S.rename(columns={'index':'Species rrnDB','Count':'16S count'}, inplace=True)
     list_of_dicts.append(df_16S)
 
 df_rrndb = pd.concat(list_of_dicts).reset_index(drop=True)
+df_rrndb.to_csv("rrndb_16S.csv",index=False)
 
+df_joined = pd.merge(df_master_filtered,df_rrndb,how="outer",left_on="GTDBtk Species Classification",right_on="Species rrnDB").reset_index(drop=True)
+df_joined.set_index("Sample ID",inplace=True)
+#print(df_joined.index)
+
+for item in df_joined['Species rrnDB']:
+    if pd.isna(item)==False:
+        print(item)
 
 
 #df1_high_q = df1[(df1['CheckM2 Contamination']<5.0) & (df1['CheckM2 Completeness']>95.0) & (df1['High Quality']=="Yes")]
