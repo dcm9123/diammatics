@@ -7,19 +7,23 @@
 import pandas as pd
 import os
 
+#This allows me to print the entire df without any issues or constraints from python
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 0)  # Let pandas auto-detect width
 
 path = "/Users/danielcm/Desktop/Sycuro/Projects/Diabetes"
 os.chdir(path)
+#In here, I am reading the rrnDB file with the 16S information of all the species in their latest version
 df = pd.read_csv("rrnDB-5.10.csv", dtype={"Data source" : "string", "NCBI tax id":"Int64", "BioSample":"string",
                                           "BioProject":"string","Data Source":"string","NCBI scientific name":"string",
                                           "RDP taxa":"string","RDP taxonomy":"string","basecount":"Int64","16S gene count":"Int64",
                                           "23S gene count":"Int64","tRNA gene count":"Int64","Evidence":"string","Note":"string",
                                           "References":"string"})
+#Reading my own master file
 df_master = pd.read_csv(path+"/t1d_db_fixed_discussed/good_files_to_use/FINAL_report_WGS_r220_June.csv")
 
+#This are all the species I have in my master file across all 4 consortia
 species_list = ["Agathobacter faecis","Akkermansia massiliensis","Akkermansia muciniphila","Alistipes finegoldii",
                 "Alistipes onderdonkii","Alitiscatomonas sp900066535","Lacrimispora amygdalina","Bacillus subtilis",
                 "Bacteroides stercoris","Bacteroides thetaiotaomicron","Bacteroides uniformis","Bacteroides xylanisolvens",
@@ -32,12 +36,15 @@ species_list = ["Agathobacter faecis","Akkermansia massiliensis","Akkermansia mu
                 "Pseudoflavonifractor_A sp022772585","Roseburia_C amylophila","Ruminococcus_B gnavus","Sarcina perfringens",
                 "Staphylococcus capitis","Staphylococcus epidermidis","Staphylococcus hominis","Sterptococcus sp001556435",
                 "Sutterella wadsworthensis"]
+
+#This are alternative names for some of the same species by using old nomenclature or NCBI nomenclature instead of GTDB
 species_list_alt = ["Lacrimospora amygdalina","Clostridium sp. Chh4-2","Collinsella aerofaciens","Enterococcus avium","Enterococcus durans",
                     "Lawsonibacter celer","Clostridium symbiosum","Pseudoflavonifractor gallinarum","Roseburia amylophila",
                     "Ruminococcus gnavus","Clostridium perfringens"]
 
+#Filtering names by the actual genomes we used
 df_master_filtered = df_master[df_master['Selected for Downstream']=="Yes"]
-species_list_master = df_master_filtered['GTDBtk Species Classification'].unique().tolist()
+species_list_master = df_master_filtered['GTDBtk Species Classification'].unique().tolist() #Counting the number of unique species (removes repeated names)
 species_overlap = []
 species_alt_overlap = []
 
@@ -47,35 +54,36 @@ for item in species_list_master:
     if item not in df['NCBI scientific name'].tolist():
         i=i+1
     else:
-        species_overlap.append(item)
+        species_overlap.append(item) #If there's an ovelap between the names of my master file and rrnDB, then they are retained and appended into a new list
 
 i=0
 for item in species_list_alt:
-    if item not in df['NCBI scientific name'].tolist():
+    if item not in df['NCBI scientific name'].tolist(): #Same but for the alternative list
         i=i+1
         #print(item)
     else:
         species_alt_overlap.append(item)
 #print("There are "+str(i)+"/"+str(len(species_list_alt))+" species with alternative names missing from rrnDB in the NCBI list:")
 
-list_of_dicts=[]
-for list in [species_overlap,species_alt_overlap]:
+list_of_dicts=[] 
+for list in [species_overlap,species_alt_overlap]: #Iterating over the two lists I have with overlap in names
     overlap_dict={}
-    for item in list:
+    for item in list: #This section just consideres the NCBI scientific name, and 16S info from the rrnDB. I don't need to groupby species as I am already filtering
         df_filtered = df[df['NCBI scientific name']==item]
         data_16S = df_filtered['16S gene count']
-        median_16S = data_16S.median()
+        median_16S = data_16S.median() #Calculation of the same species median value and the other values.
         min_16S = data_16S.min()
         max_16S = data_16S.max()
         count_16S = data_16S.count()
-        overlap_dict[item] = {'Count':count_16S,'Median 16S':median_16S,'Minimum 16S':min_16S,'Maximum 16S':max_16S}
-    df_16S = pd.DataFrame.from_dict(overlap_dict, orient='index').reset_index()
-    df_16S.rename(columns={'index':'Species rrnDB','Count':'16S count'}, inplace=True)
-    list_of_dicts.append(df_16S)
+        overlap_dict[item] = {'Count':count_16S,'Median 16S':median_16S,'Minimum 16S':min_16S,'Maximum 16S':max_16S} #Appending the dictionary with keys and values
+    df_16S = pd.DataFrame.from_dict(overlap_dict, orient='index').reset_index() #Converting the dictionary into a data frame
+    df_16S.rename(columns={'index':'Species rrnDB','Count':'16S count'}, inplace=True) #Renaming columns
+    list_of_dicts.append(df_16S) #Appending df1 and df2 for each list
 
-df_rrndb = pd.concat(list_of_dicts).reset_index(drop=True)
-df_rrndb.to_csv("rrndb_16S.csv",index=False)
+df_rrndb = pd.concat(list_of_dicts).reset_index(drop=True) #This joins the two data frames (or stacks them one on top of the other) and resets the index
+df_rrndb.to_csv("rrndb_16S.csv",index=False) #Writing final df of info needed
 
+#Mergind the df I just made with the master file only if the same species overlap between the two files.
 df_joined = pd.merge(df_master_filtered,df_rrndb,how="outer",left_on="GTDBtk Species Classification",right_on="Species rrnDB").reset_index(drop=True)
 df_joined.set_index("Sample ID",inplace=True)
 #print(df_joined.index)
