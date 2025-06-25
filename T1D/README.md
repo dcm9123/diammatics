@@ -6,6 +6,7 @@ For PICRUST2 I have to create 4 individual phylogenetic trees from the consortia
 `rm_dupt1d_db2_withDups_S_S2_species.fasta`
 `rm_dupt1d_db2_withDups_S_S5_species.fasta`
 
+## MAFFT
 These files have the duplicate sequences removed of EACH consortia, not from the global t1d updated db 2. So, the only duplicates that were removed where located in each consortia. 
 
 The next step is to run MAFFT in each file:
