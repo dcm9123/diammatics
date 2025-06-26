@@ -36,38 +36,44 @@ loading_packages = function(){
   library("Biostrings")
 }
 
+
+#Files needed:
+# - seqtab_nochimeras_p1.rds (and for the rest of the 4 plates)
+# - plate1/p1_vsearch_dada2_merged.tsv
+# - plate1/Nreads_plate1.tsv
+
 ###INITIALIZING PATH AND FILE LOCATION
 path = "/Users/danielcm/Desktop/Sycuro/Projects/Diabetes/t1d_db_fixed_discussed/FemMicro_Daniel/"
 setwd(path)                                                                     #Setting the path of where Im working
 
 ###RETRIEVING NOCHIMERIC OBJECTS AS RDS FILES
 retrieving_nonchimera_obj = function(){
-  seqtab_nochim_p1 <<- readRDS(file = "plate1/seqtab_nochimeras_m_p1.rds")  #Reading the non-chimeric sequences from FemMicro using the updated db.
-  seqtab_nochim_p2 <<- readRDS(file = "plate2/seqtab_nochimeras_m_p2.rds")
-  seqtab_nochim_p3 <<- readRDS(file = "plate3/seqtab_nochimeras_m_p3.rds")
-  seqtab_nochim_p4 <<- readRDS(file = "plate4/seqtab_nochimeras_m_p4.rds")
-  seqtab_nochim_p5 <<- readRDS(file = "plate5/seqtab_nochimeras_m_p5.rds")
+  seqtab_nochim_p1 <<- readRDS(file = "plate1.1/seqtab_nochimeras_m_p1.rds")  #Reading the non-chimeric sequences from FemMicro using the updated db.
+  seqtab_nochim_p2 <<- readRDS(file = "plate2.1/seqtab_nochimeras_m_p2.rds")
+  seqtab_nochim_p3 <<- readRDS(file = "plate3.1/seqtab_nochimeras_m_p3.rds")
+  seqtab_nochim_p4 <<- readRDS(file = "plate4.1/seqtab_nochimeras_m_p4.rds")
+  seqtab_nochim_p5 <<- readRDS(file = "plate5.1/seqtab_nochimeras_m_p5.rds")
 }
 
 ###MODIFYING RDS OBJECTS BY ADDING WORD 'PLATE' TO EACH SAMPLE
 reshaping_rds_objects = function(){
-  obj1 = readRDS("plate1/seqtab_nochimeras_p1.rds")
+  obj1 = readRDS("plate1.1/seqtab_nochimeras_p1.rds")
   rownames(obj1) = paste0("Plate1_",rownames(obj1))
   saveRDS(obj1,"plate1/seqtab_nochimeras_m_p1.rds")
   
-  obj2 = readRDS("plate2/seqtab_nochimeras_p2.rds")
+  obj2 = readRDS("plate2.1/seqtab_nochimeras_p2.rds")
   rownames(obj2) = paste0("Plate2_",rownames(obj2))
   saveRDS(obj2,"plate2/seqtab_nochimeras_m_p2.rds")
   
-  obj3 = readRDS("plate3/seqtab_nochimeras_p3.rds")
+  obj3 = readRDS("plate3.1/seqtab_nochimeras_p3.rds")
   rownames(obj3) = paste0("Plate3_",rownames(obj3))
   saveRDS(obj3,"plate3/seqtab_nochimeras_m_p3.rds")
   
-  obj4 = readRDS("plate4/seqtab_nochimeras_p4.rds")
+  obj4 = readRDS("plate4.1/seqtab_nochimeras_p4.rds")
   rownames(obj4) = paste0("Plate4_",rownames(obj4))
   saveRDS(obj4,"plate4/seqtab_nochimeras_m_p4.rds")
   
-  obj5 = readRDS("plate5/seqtab_nochimeras_p5.rds")
+  obj5 = readRDS("plate5.1/seqtab_nochimeras_p5.rds")
   rownames(obj5) = paste0("Plate5_",rownames(obj5))
   saveRDS(obj5,"plate5/seqtab_nochimeras_m_p5.rds")
 }
@@ -153,26 +159,33 @@ initializing = function(variable){
   }
 
 ###INITIALIZING TAXONOMY AND PHYLOSEQ OBJECT GENERATION
-taxonomy_and_ps = function(file_taxa, seqtab_nochim, samdf,plate_string){
+taxonomy_and_ps = function(file_taxa, seqtab_nochim, samdf,plate_string,asv_sequences){
   taxa_table<-read.table(file_taxa, header=TRUE)                             #This reads the taxonomy table from GTDB by the femmicro pipeline
   taxa_table = taxa_table[,c(2,4,5,6,7,8,9,10)]
   plate_number = strsplit(file_taxa,"/")[[1]][1]
-  asv_ids = paste0("ASV",seq_len(nrow(taxa_table)))
+  if(asv_sequences==TRUE){
+    asv_ids = colnames(seqtab_nochim)
+  }
+  else{
+    asv_ids = paste0("ASV",seq_len(nrow(taxa_table)))
+    print("The ASV numbers will be used as IDs")
+    
+  }
   taxa_table_with_ids = cbind(ASV_ID = asv_ids, taxa_table)
   write.csv(taxa_table_with_ids,file = paste0(plate_number,"/",plate_number,"_taxa_table.csv"))        #This ensures that the ASV_ID are the same between seqtab and taxa_table after taking the 2nd column                                     #Reading it as a matrix instead of a df
   rownames(taxa_table) = taxa_table[,1]
   taxa_table = taxa_table[,-1]
   rownames(samdf)<-samdf$ID                                                       #Phyloseq doesn't like if the sample names do not match the seqtab file, so renaming the rownames to the ID fixes the problem of "sample names do not match"
   taxa_table<-as.matrix(taxa_table)    
-  print(setdiff(colnames(seqtab_nochim), rownames(taxa_table)))
+  #print(setdiff(colnames(seqtab_nochim), rownames(taxa_table)))
   ps<-phyloseq(otu_table(seqtab_nochim, taxa_are_rows = FALSE),
              sample_data(samdf),tax_table(taxa_table))
   dna<-Biostrings::DNAStringSet(taxa_names(ps))
   names(dna)<-taxa_names(ps)
   ps<-merge_phyloseq(ps,dna)
-  taxa_names(ps)<-paste0("ASV",plate_string,seq(ntaxa(ps)))
+  #taxa_names(ps)<-paste0("ASV",plate_string,seq(ntaxa(ps)))
   #print(names(dna))
-  print(ps)
+  #print(ps)
   return(ps)
 }
 
@@ -769,32 +782,52 @@ samdf3 = initializing(seqtab_nochim_p3)
 samdf4 = initializing(seqtab_nochim_p4)
 samdf5 = initializing(seqtab_nochim_p5)
 
-ps1 = taxonomy_and_ps("plate1/p1_vsearch_dada2_merged.tsv",seqtab_nochim_p1,samdf1,"p1_")
-ps2 = taxonomy_and_ps("plate2/p2_vsearch_dada2_merged.tsv",seqtab_nochim_p2,samdf2,"p2_")
-ps3 = taxonomy_and_ps("plate3/p3_vsearch_dada2_merged.tsv",seqtab_nochim_p3,samdf3,"p3_")
-ps4 = taxonomy_and_ps("plate4/p4_vsearch_dada2_merged.tsv",seqtab_nochim_p4,samdf4,"p4_")
-ps5 = taxonomy_and_ps("plate5/p5_vsearch_dada2_merged.tsv",seqtab_nochim_p5,samdf5,"p5_")
+#!!! IN THIS PART, SELECT TRUE IF YOU WANT TO USE SEQUENCES AS ID, SELECT FALSE IF YOU WANT THE ASV# AS IDS, THIS DECISION CAN AFFECT THE MERGING!
+ps1 = taxonomy_and_ps("plate1.1/final_merged_tables/p1_vsearch_dada2_merged.tsv",seqtab_nochim_p1,samdf1,"p1_",asv_sequences = TRUE)
+ps2 = taxonomy_and_ps("plate2.1/final_merged_tables/p2_vsearch_dada2_merged.tsv",seqtab_nochim_p2,samdf2,"p2_",asv_sequences = TRUE)
+ps3 = taxonomy_and_ps("plate3.1/final_merged_tables/p3_vsearch_dada2_merged.tsv",seqtab_nochim_p3,samdf3,"p3_",asv_sequences = TRUE)
+ps4 = taxonomy_and_ps("plate4.1/final_merged_tables/p4_vsearch_dada2_merged.tsv",seqtab_nochim_p4,samdf4,"p4_",asv_sequences = TRUE)
+ps5 = taxonomy_and_ps("plate5.1/final_merged_tables/p5_vsearch_dada2_merged.tsv",seqtab_nochim_p5,samdf5,"p5_",asv_sequences = TRUE)
 
-counting_reads("plate1/Nreads_plate1.tsv")
-counting_reads("plate2/Nreads_plate2.tsv")
-counting_reads("plate3/Nreads_plate3.tsv")
-counting_reads("plate4/Nreads_plate4.tsv")
-counting_reads("plate5/Nreads_plate5.tsv")
+head(taxa_names(ps1))  # Should match column names of seqtab_nochim or "ASV1", "ASV2", etc.
+tax_table(ps1)[1:5,]
 
-counting_asvs("plate1/p1_vsearch_dada2_merged.tsv")
-counting_asvs("plate2/p2_vsearch_dada2_merged.tsv")
-counting_asvs("plate3/p3_vsearch_dada2_merged.tsv")
-counting_asvs("plate4/p4_vsearch_dada2_merged.tsv")
-counting_asvs("plate5/p5_vsearch_dada2_merged.tsv")
+counting_reads("plate1.1/Nreads_plate1.tsv")
+counting_reads("plate2.1/Nreads_plate2.tsv")
+counting_reads("plate3.1/Nreads_plate3.tsv")
+counting_reads("plate4.1/Nreads_plate4.tsv")
+counting_reads("plate5.1/Nreads_plate5.tsv")
+
+counting_asvs("plate1.1/final_merged_tables/p1_vsearch_dada2_merged.tsv")
+counting_asvs("plate2.1/final_merged_tables/p2_vsearch_dada2_merged.tsv")
+counting_asvs("plate3.1/final_merged_tables/p3_vsearch_dada2_merged.tsv")
+counting_asvs("plate4.1/final_merged_tables/p4_vsearch_dada2_merged.tsv")
+counting_asvs("plate5.1/final_merged_tables/p5_vsearch_dada2_merged.tsv")
+
+ps1 #172
+ps2 #161
+ps3 #187
+ps4 #279
+ps5 #102
+
+otu_table(ps_merged)
 
 ps_merged = merging_runs(ps1,ps2,ps3,ps4,ps5) #279 taxa and 364 samples
 for(item in sample_data(ps_merged)$ID){
   cat(paste0(item,"\n"))
 }
 
-ps_merged #This object has ASVs that point to the same taxonomy (901 ASVs, 364 samples)
+ps_merged #This object has ASVs that point to the same taxonomy (901 ASVs, 364 samples when adding individually, 535 when removing same sequences)
 ps_merged_glom = tax_glom(ps_merged, taxrank = "species_final",NArm = FALSE) #This WILL NOT remove NAs from the species but will cluster the taxonomic rank from Kingdom to Genus if they are identical and species is NA 
 ps_merged_glom #99 taxa
+
+
+#asv_ids_ps_merged = asv_ids <- paste0("ASV", seq(ntaxa(ps_merged)))
+#asv_ids_ps_merged_glom = asv_ids <- paste0("ASV", seq(ntaxa(ps_merged_glom)))
+
+#taxa_names(ps_merged) = asv_ids_ps_merged
+#taxa_names(ps_merged_glom) =asv_ids_ps_merged_glom
+
 
 #TESTING IF THE MERGING WORK AND ASVs ARE NOT MERGED BY THEIR ID
 
@@ -809,34 +842,58 @@ ps_merged_glom #99 taxa
 
 #I have decided to move on using the ps_merged_glom based on taxonomy not unique ASVs
 
-ps_merged_by_group = subsetting_merged_plate(ps_merged_glom)
+ps_merged_by_group = subsetting_merged_plate(ps_merged_glom) #Change this if you want ASVs collapsed to species level or not (ps_merged_glom vs ps_merged)
+View(tax_table(ps_merged))
 ps_merged_weeks = ps_merged_by_group[[1]]
 ps_merged_inocula = ps_merged_by_group[[2]]
 ps_merged_positive = ps_merged_by_group[[3]]
 ps_merged_negative = ps_merged_by_group[[4]]
 
-ps_w5 = subset_samples(ps_merged_weeks, Timepoint=="week_5") #115 samples #All showing 192 taxa as the empty ones have not been removed yet
+ps_w5 = subset_samples(ps_merged_weeks, Timepoint=="week_5") #All showing 192 taxa as the empty ones have not been removed yet
 ps_w6 = subset_samples(ps_merged_weeks, Timepoint=="week_6") #16 samples
 ps_w7 = subset_samples(ps_merged_weeks, Timepoint=="week_7") #16 samples
 ps_w9 = subset_samples(ps_merged_weeks, Timepoint=="week_9") #119 samples
 ps_w10 = subset_samples(ps_merged_weeks, Timepoint=="week_10") #29 samples
 ps_endpoint = subset_samples(ps_merged_weeks, Timepoint=="week_endpoint") #24 samples
 
-ps_w5_f = removing_empty_asvs(ps_w5) #54 taxa and 115 samples
+ps_w5_f = removing_empty_asvs(ps_w5) #54 taxa and 115 samples for ps_merged_glom and 148 when using ps_merged
 ps_w6_f = removing_empty_asvs(ps_w6) #32 taxa and 16 samples
 ps_w7_f = removing_empty_asvs(ps_w7) #31 taxa and 16 samples
 ps_w9_f = removing_empty_asvs(ps_w9) #54 taxa and 119 samples
 ps_w10_f = removing_empty_asvs(ps_w10) #43 taxa and 29 samples
 ps_endpoint_f = removing_empty_asvs(ps_endpoint) #35 taxa and 24 samples
 
+ps_w5_f 
+
 ps_merged_weeks_f = removing_empty_asvs(ps_merged_weeks) #Sanity check, nothing changed and that's supposed to happen
 
-writing_tables_ps(ps_merged_weeks_f,"samples_339")
-writing_tables_ps(ps_merged_glom,"samples_364")
-writing_tables_ps(ps_merged_positive,"positive_ctrls")
-writing_tables_ps(ps_merged_negative,"negative_ctrls")
-writing_tables_ps(ps_merged_inocula,"consortia")
+writing_tables_ps(ps_merged_weeks_f,"samples_339_by_species")
+writing_tables_ps(ps_merged_glom,"samples_364_by_species")
+writing_tables_ps(ps_merged,"samples_364_by_species")
+writing_tables_ps(ps_merged_positive,"positive_ctrls_by_species")
+writing_tables_ps(ps_merged_negative,"negative_ctrls_by_species")
+writing_tables_ps(ps_merged_inocula,"consortia_by_species")
 
+tmp_names_w5 = gsub("^Plate[0-9]+_", "", sample_names(ps_w5_f))
+tmp_names_w5 = gsub("_week[0-9]+_S[0-9]+_L001","",tmp_names_w5)
+tmp_names_w6 = gsub("^Plate[0-9]+_", "", sample_names(ps_w6_f))
+tmp_names_w6 = gsub("_week[0-9]+_S[0-9]+_L001","",tmp_names_w6)
+tmp_names_w7 = gsub("^Plate[0-9]+_", "", sample_names(ps_w7_f))
+tmp_names_w7 = gsub("_week[0-9]+_S[0-9]+_L001","",tmp_names_w7)
+tmp_names_w9 = gsub("^Plate[0-9]+_", "", sample_names(ps_w9_f))
+tmp_names_w9 = gsub("_week[0-9]+_S[0-9]+_L001","",tmp_names_w9)
+tmp_names_w9 = gsub("_Pellet","",tmp_names_w9)
+tmp_names_w9 = gsub("_S[0-9]+_L001","",tmp_names_w9)
+tmp_names_w9 = gsub("_Male","",tmp_names_w9)
+tmp_names_w9 = gsub("_Female","",tmp_names_w9)
+tmp_names_w10 = gsub("^Plate[0-9]+_", "", sample_names(ps_w10_f))
+tmp_names_w10 = gsub("_week[0-9]+_S[0-9]+_L001","",tmp_names_w10)
+
+tmp_names_w9
+tmp_names_w10
+
+intersect(tmp_names_w5,tmp_names_w6 )
+intersect(tmp_names_w9,tmp_names_w10)
 
 #Sending the positives for taxa analyses
 #I tried making a function that passes the ps and then divides in into
