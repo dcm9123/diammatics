@@ -37,3 +37,6 @@ For RAxML, I had this code that gets bootstrap trees, followed by the selection 
 ` 
 In this part, I had to make sure that the headers of the sequences didn't have any spaces, and to assign just 1 or 2 threads to the job, as more than that will crash the code. Specifically in the `raxml-ng --search` part, I had to include `--force` to force it to run with 1 thread.
 
+### July 1st, 2025
+Ignore what I previously wrote. Turns out I was not specifying the number of threads properly for the `raxml-ng --search` part, and when that happens, the program will try to use whatever number of threads the node has available. Look at the updated raxml_slurm.sh file I have added to this repo in this folder in case you need it again.
+
