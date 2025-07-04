@@ -35,7 +35,19 @@ def formatting_original_file(path):
         df.to_csv(file_name+"_eggnog.tsv",sep='\t',index=False) #Output as tsv file
     os.remove(f_out)
 path = "/Users/danielcm/Desktop/Sycuro/Projects/Diabetes/picrust2_june232025/genome_species/eggnogs/annotations"
+
+def formatting_picrust2_annotations(path):
+    os.chdir(path)
+    file = "S_S5_Blss_094_eggnog.tsv"
+    df = pd.read_csv(file,sep='\t')
+    df["EC"] = df["EC"].replace("-","NA")
+    df["KEGG_ko"] = df["KEGG_ko"].replace("-","NA") #Replaces entire cell containing '-'
+    df["KEGG_ko"] = df["KEGG_ko"].str.replace("ko:","") #Replaces instances of "ko:" in a cell, that's why we used str.replace
+    df_subset = df.iloc[:,[0,11,12]]
+    print(df_subset)
+
 def main():
     formatting_original_file(path)
+    formatting_picrust2_annotations(path)
 if __name__ == "__main__":
     main()
