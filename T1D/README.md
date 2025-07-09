@@ -55,3 +55,5 @@ After a few days of coding I was able to come up with a finalized script that ta
   `tqdm (v4.65.0)`,
   `python (v3.11.5)`
 
+The name of the script is: `eggnog_to_picrust2.py`, and the two examples final files it generates are `final_EC_file.tsv` and `Final_KO_file.tsv`
+
