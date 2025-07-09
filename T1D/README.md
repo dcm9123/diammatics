@@ -51,8 +51,7 @@ After a few days of coding I was able to come up with a finalized script that ta
 2) The formatting of the file name must follow this nomenclature: `S_NS1_Am_001.emapper.annotations`. The first letter indicating it's a sample ("S"), the second instance indicating the consortia name/identifier (`NS1 = Nonseroconverted 1`), the third instance a microbe identifier (in this case, `Am = Akkermansia muciniphila`), and fourth, a unique number identifier (`001 = sample # 001)`. It must also end in `emapper.annotations` for it to be read.
 3) Provide an output path to store the output files.
 4) Have the following packages installed:
-  pandas
-  os
-  sys
-  tqdm
+  pandas (v1.4.4)
+  tqdm (v4.65.0)
+  python (v3.11.5)
 
