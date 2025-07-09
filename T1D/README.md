@@ -60,5 +60,6 @@ The name of the script is: `eggnog_to_picrust2.py`, and the two examples final f
 ###July 9th, 2025
 
 I have downloaded the PICRUSt2 original files so I can used them as a reference format for mine. The files are called: `16S_reference.txt`, `ec_reference.txt.gz`, and `ko_reference_cut.txt` . Some of these files were too large to be uploaded, so I cut the ko_reference to the top 5 lines, and I left the EC file gzipped.
-I need to add the word 'assembly' instead of Sample ID to the final formatted EC and KO files from my `eggnog_to_picrust2.py` script. I also need to leave the 'ko:' in the KO identifiers so it looks like `'ko:K02237'` .On the other hand, the 'EC' word should be removed, in a way that it only displays the number (i.e. `2.3.5.16`
+I need to add the word 'assembly' instead of Sample ID to the final formatted EC and KO files from my `eggnog_to_picrust2.py` script. I also need to leave the 'ko:' in the KO identifiers so it looks like `'ko:K02237'` .On the other hand, the 'EC' word should be removed, in a way that it only displays the number (i.e. `2.3.5.16`).
+The 16S.txt file must have the word `assembly` for the genome identifiers, a tab, and the column name 16S_rRNA_count as well.
 
