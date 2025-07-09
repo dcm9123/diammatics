@@ -43,3 +43,16 @@ Ignore what I previously wrote. Turns out I was not specifying the number of thr
 ### July 3rd, 2025
 A total of 17 genomes were flagged by NCBI. 14 of those had illumina adapters in one to three contigs in each file. Each sequence that needed to be removed was shorter than 60 bp. Laura and I discussed and we decided it's best to manually remove these short sequences, reannotate these genomes, and re-run the quality metrics (checkM, quast, etc). For the remaining 4 genomes, these 4 have contaminants from other species. We removed the contigs associated with these others and I'll be running the same metrics as the other genomes. The command used for Prokka is found in this folder.
 
+### July 8th, 2025
+
+After a few days of coding I was able to come up with a finalized script that takes the raw eggnog_annotations file after running eggnog on various samples, and then it produces two final files containing the KOs and ECs formatted for PICRUSt2 to read properly. For this to happen, the user must have and provide:
+
+1) The number of path(s) where their samples are located, as well as the path(s) itself.
+2) The formatting of the file name must follow this nomenclature: `S_NS1_Am_001.emapper.annotations`. The first letter indicating it's a sample ("S"), the second instance indicating the consortia name/identifier (`NS1 = Nonseroconverted 1`), the third instance a microbe identifier (in this case, `Am = Akkermansia muciniphila`), and fourth, a unique number identifier (`001 = sample # 001)`. It must also end in `emapper.annotations` for it to be read.
+3) Provide an output path to store the output files.
+4) Have the following packages installed:
+  pandas
+  os
+  sys
+  tqdm
+
