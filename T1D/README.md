@@ -57,3 +57,7 @@ After a few days of coding I was able to come up with a finalized script that ta
 
 The name of the script is: `eggnog_to_picrust2.py`, and the two examples final files it generates are `final_EC_file.tsv` and `Final_KO_file.tsv`
 
+###July 9th, 2025
+
+I have downloaded the PICRUSt2 original files so I can used them as a reference format for mine. The files are called: `16S_reference.txt`, `ec_reference.txt`, and `ko_reference.txt`
+
