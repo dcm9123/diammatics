@@ -111,16 +111,18 @@ That generated my file, and it showed the parameters and information that was ob
 ```
 Alignment sequence length ....................: `18,489 `
 Version ......................................: `FastTree Version 2.1.11 Double precision (No SSE3)` 
-**Alignment** ....................................: standard input 
-**Info** .........................................: Amino acid distances: BLOSUM45, Joins: balanced, Support: SH-like 1000 
-**Search** .......................................: Normal +NNI +SPR (2 rounds range 10) +ML-NNI opt-each=1 **TopHits** ......................................: 1.00\*sqrtN, close=default, refresh=0.80 
-**ML Model** .....................................: Jones-Taylor-Thornton, CAT approximation with 20 rate categories **Info** .........................................: Ignored unknown character X (seen 22,680 times) 
-**Refining topology** ............................: 27 rounds ME-NNIs, 2 rounds ME-SPRs, 14 rounds ML-NNIs 
-**Branch length** ................................: Total = 8.278 after 21.78 sec 
-**ML-NNI round 1** ...............................: LogLk = -658939.021, NNIs = 7, max delta = 100.73, Time = 65.58 sec 
-**ML-NNI round 2** ...............................: LogLk = -608967.117, NNIs = 3, max delta = 10.95, Time = 95.80 sec 
-**ML-NNI round 3** ...............................: LogLk = -608959.059, NNIs = 0, max delta = 0.00, Time = 100.13 sec 
-**Final ML-NNI round 4** .........................: LogLk = -608913.064, NNIs = 0, Time = 133.33 sec **Optimize all lengths** .........................: LogLk = -608912.314, Time = 143.42 sec
+Alignment ....................................: standard input 
+Info .........................................: Amino acid distances: BLOSUM45, Joins: balanced, Support: SH-like 1000 
+Search .......................................: Normal +NNI +SPR (2 rounds range 10) +ML-NNI opt-each=1 **TopHits** ......................................: 1.00\*sqrtN, close=default, refresh=0.80 
+ML Model .....................................: Jones-Taylor-Thornton, CAT approximation with 20 rate categories
+Info .........................................: Ignored unknown character X (seen 22,680 times) 
+Refining topology ............................: 27 rounds ME-NNIs, 2 rounds ME-SPRs, 14 rounds ML-NNIs 
+Branch length ................................: Total = 8.278 after 21.78 sec 
+ML-NNI round 1 ...............................: LogLk = -658939.021, NNIs = 7, max delta = 100.73, Time = 65.58 sec 
+ML-NNI round 2 ...............................: LogLk = -608967.117, NNIs = 3, max delta = 10.95, Time = 95.80 sec 
+ML-NNI round 3 ...............................: LogLk = -608959.059, NNIs = 0, max delta = 0.00, Time = 100.13 sec 
+Final ML-NNI round .........................: LogLk = -608913.064, NNIs = 0, Time = 133.33 sec
+Optimize all lengths .........................: LogLk = -608912.314, Time = 143.42 sec
 ```
 
 
