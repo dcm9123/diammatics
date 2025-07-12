@@ -77,6 +77,11 @@ The next part consisted in getting the sequences for hmm hits. For this to happe
 
 `for file in *-contigs.db; do anvi-get-sequences-for-hmm-hits -c ${file} --hmm-source Bacteria_71 -o ${file%%-contigs.db}_genes.fasta; done;`
 
+The next step is to generate a .txt file that describes the hmm sources for a collection of genomes, instead of having individual files for each one of them. For this, I ran:
+
+`anvi-script-gen-hmm-hits-matrix-across-genomes -e name_and_path_to_contigs.txt --hmm-source Bacteria_71 -o hmm_hits_matrix_across_116_genomes.txt`
+
+
 
 
 
