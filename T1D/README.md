@@ -107,9 +107,10 @@ anvi-get-sequences-for-hmm-hits --external-genomes ../name_and_path_to_contigs.t
 That generated my file, and it showed the parameters and information that was obtaied from the tree:
 
 **Input alignment file path** .....................: `/bulk/sycuro_bulk/daniel/diabetes/UC_UT_collaboration/anvio/all_genomes_NCBI/final_concatenated_proteins.fa` **Output file path** .............................: `/bulk/sycuro_bulk/daniel/diabetes/UC_UT_collaboration/anvio/all_genomes_NCBI/NCBI_phylogenomics_tree.txt` <details> <summary><strong>Alignment names</strong> (click to expand)</summary> S_S5_Rf_112, S_S5_Cc_098, S_S5_Sc_120, S_NS6_Hh_054, S_NS1_Fp_020_S27, S_S5_Bv_093, S_S5_Cb_096, S_S5_Pd_110, S_S5_Cc_097, S_S2_Blss_067_S30, S_S2_Cc_069, S_S5_Ef_104, S_NS6_Fp_052, S_NS6_El_044, S_NS6_Ef_050, S_S2_Fp_079, S_NS1_Bs_004, S_NS1_Bv_007, S_NS1_Ss_026, S_NS1_Fp_019, S_S5_Rg_113, S_NS1_Bu_006, S_NS1_Ao_003, S_S2_Bs_063, S_S2_Bv_065, S_NS1_Ca_028, S_NS1_Shsn_025, S_NS1_Bp_010, S_NS1_Em_018, S_NS6_Ef_049, S_S5_Em_101, S_S2_Et_074_S32, S_NS1_Pd_022, S_S5_Dg_099, S_NS6_Em_046, S_S5_Et_102, S_NS1_El_014, S_S2_Ef_078_S34, S_NS6_Bs_033, S_NS1_Sw_027, S_NS6_Bs_032, S_NS6_Blss_040, S_NS1_Ig_115, S_NS1_Am_001, S_NS6_El_045, S_NS6_Ao_031, S_S2_Ea_077, S_S5_Am_089, S_S5_Pd_111, S_NS1_Cb_011, S_NS1_Et_015, S_NS1_He_021, S_S5_El_100, S_NS6_Bu_117, S_S5_Ea_103, S_S2_He_082_S35, S_S2_Bd_066, S_S2_Ca_088_S36, S_S5_Af_090, S_NS1_Eh_016, S_S2_Rf_084, S_S2_Rg_085, S_NS1_Af_002, S_NS6_Pp_057_S29, S_NS1_Pm_023, S_NS1_Bl_116, S_NS6_Bu_036, S_S2_Am_061, S_S2_Et_075_S33, S_NS6_Bx_038_S28, S_S5_Af_091, S_NS6_He_053, S_NS6_Sw_060, S_NS6_Et_048, S_NS6_Ss_059, S_S2_Bd_064, S_S2_Cs_071, S_S2_Rf_118, S_S2_Fp_080, S_NS6_Cb_041, S_NS1_Ba_008, S_NS6_Bu_034, S_NS1_Cc_012, S_S2_Pd_083, S_S5_Blss_094, S_NS1_Cp_013, S_S5_He_108, S_NS6_Bv_037, S_S5_Lp_109_S38, S_S5_Bp_095, S_NS1_Em_017, S_S2_Ea_076, S_S5_Fp_105, S_NS6_Ba_039, S_NS6_Af_030, S_NS6_Sh_058, S_NS6_Ef_051, S_S5_Fp_106, S_S2_Hf_081, S_NS6_Em_047, S_NS6_Pd_055, S_NS6_Cp_043, S_NS1_Bt_005, S_S2_Sc_086, S_S2_Cc_070, S_S5_Hf_107, S_NS6_Cb_042, S_S2_Cb_068, S_NS6_Am_029, S_S2_Shsn_087, S_NS1_Blss_009, S_S2_Af_119, S_S5_Bg_092_S37, S_S2_El_072, S_S2_El_073_S31, S_NS6_Pm_056 </details> 
-  
-**Alignment sequence length** ....................: `18,489 `
-**Version** ......................................: `FastTree Version 2.1.11 Double precision (No SSE3)` 
+
+```
+Alignment sequence length ....................: `18,489 `
+Version ......................................: `FastTree Version 2.1.11 Double precision (No SSE3)` 
 **Alignment** ....................................: standard input 
 **Info** .........................................: Amino acid distances: BLOSUM45, Joins: balanced, Support: SH-like 1000 
 **Search** .......................................: Normal +NNI +SPR (2 rounds range 10) +ML-NNI opt-each=1 **TopHits** ......................................: 1.00\*sqrtN, close=default, refresh=0.80 
@@ -120,7 +121,7 @@ That generated my file, and it showed the parameters and information that was ob
 **ML-NNI round 2** ...............................: LogLk = -608967.117, NNIs = 3, max delta = 10.95, Time = 95.80 sec 
 **ML-NNI round 3** ...............................: LogLk = -608959.059, NNIs = 0, max delta = 0.00, Time = 100.13 sec 
 **Final ML-NNI round 4** .........................: LogLk = -608913.064, NNIs = 0, Time = 133.33 sec **Optimize all lengths** .........................: LogLk = -608912.314, Time = 143.42 sec
-
+```
 
 
 
