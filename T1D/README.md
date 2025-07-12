@@ -83,6 +83,11 @@ The next step is to generate a .txt file that describes the hmm sources for a co
 
 The next part was to create a new artifact containing the genome storage information that I have so far. For this to be done, I ran: `anvi-gen-genomes-storage -e name_and_path_to_contigs.txt --output-file storage_116-GENOMES.db`. Whilst this is typically ran in a pangenomics workflow, I will be using these genes to generate a gene concatenated file for a phylogenomics tree.
 
+Apparently I also need to generate a single profile db across each contig-db in my 02_CONTIGS/ folder. For that, I had to run this command: `for file in *-contigs.db; do anvi-profile -c $file --blank-profile -o ${file%%-contigs.db} -T 32 --sample-name ${file%%-contigs.db}; done;` this was run in `/bulk/sycuro_bulk/daniel/diabetes/UC_UT_collaboration/anvio/all_genomes_NCBI/02_CONTIGS/`
+
+then anvi-merge across each individual profile-db
+
+
 
 
 
