@@ -83,9 +83,13 @@ The next step is to generate a .txt file that describes the hmm sources for a co
 
 The next part was to create a new artifact containing the genome storage information that I have so far. For this to be done, I ran: `anvi-gen-genomes-storage -e name_and_path_to_contigs.txt --output-file storage_116-GENOMES.db`. Whilst this is typically ran in a pangenomics workflow, I will be using these genes to generate a gene concatenated file for a phylogenomics tree.
 
-Apparently I also need to generate a single profile db across each contig-db in my 02_CONTIGS/ folder. For that, I had to run this command: `for file in *-contigs.db; do anvi-profile -c $file --blank-profile -o ${file%%-contigs.db} -T 32 --sample-name ${file%%-contigs.db}; done;` this was run in `/bulk/sycuro_bulk/daniel/diabetes/UC_UT_collaboration/anvio/all_genomes_NCBI/02_CONTIGS/`
+Turns out I did not need the genome storage for the concatenated genes! Instead I had to play around with the parameters until it worked out. However, when getting an error regarding 'file does not exist at `/home/daniel.castanedamogo/tmp/98298asz` make sure to run this command to remove any temporary files related to previous runs:
 
-then anvi-merge across each individual profile-db
+`find /home/daniel.castanedamogo/tmp -type d -name "tmp*" -exec rm -rf {} +`
+
+Then run this:
+
+`for file in *-contigs.db; do anvi-get-sequences-for-hmm-hits -c ${file} --hmm-source Bacteria_71 --gene-names ADK,AICARFT_IMPCHas,ATP-synt,ATP-synt_A,Chorismate_synt,EF_TS,Exonuc_VII_L,GrpE,Ham1p_like,IPPT,OSCP,PGK,Pept_tRNA_hydro,RBFA,RNA_pol_L,RNA_pol_Rpb6,RRF,RecO_C,Ribonuclease_P,Ribosom_S12_S23,Ribosomal_L1,Ribosomal_L13,Ribosomal_L14,Ribosomal_L16,Ribosomal_L17,Ribosomal_L18p,Ribosomal_L19,Ribosomal_L2,Ribosomal_L20,Ribosomal_L21p,Ribosomal_L22,Ribosomal_L23,Ribosomal_L27,Ribosomal_L27A,Ribosomal_L28,Ribosomal_L29,Ribosomal_L3,Ribosomal_L32p,Ribosomal_L35p,Ribosomal_L4,Ribosomal_L5,Ribosomal_L6,Ribosomal_L9_C,Ribosomal_S10,Ribosomal_S11,Ribosomal_S13,Ribosomal_S15,Ribosomal_S16,Ribosomal_S17,Ribosomal_S19,Ribosomal_S2,Ribosomal_S20p,Ribosomal_S3_C,Ribosomal_S6,Ribosomal_S7,Ribosomal_S8,Ribosomal_S9,RsfS,RuvX,SecE,SecG,SecY,SmpB,TsaE,UPF0054,YajC,eIF-1a,ribosomal_L24,tRNA-synt_1d,tRNA_m1G_MT,Adenylsucc_synt --get-aa-sequences --concatenate-genes --return-best-hit -o ${file%%-contigs.db}_concatenated_aa.fasta --just-do-it; done;`
 
 
 
