@@ -63,3 +63,15 @@ I have downloaded the PICRUSt2 original files so I can used them as a reference 
 I need to add the word 'assembly' instead of Sample ID to the final formatted EC and KO files from my `eggnog_to_picrust2.py` script. I also need to leave the 'ko:' in the KO identifiers so it looks like `'ko:K02237'` .On the other hand, the 'EC' word should be removed, in a way that it only displays the number (i.e. `2.3.5.16`).
 The 16S.txt file must have the word `assembly` for the genome identifiers, a tab, and the column name 16S_rRNA_count as well.
 
+###July 11th, 2025
+I have restarted the Anvi'o analysis for the new genomes. For this, I had to start over using Anvi'o again. Some of the things that I've learned whilst installing the anvio-dev version, is that the databases are not saved in a specific directory of your choice (or if there is, it's more complicated than I thought...). Instead, it is saved in the same directory where Anaconda is found (in my case it was `/home/daniel.castanedamogo/github`). Then, I had to do the following:
+
+1. Identify the paths where my genomes are located, and make a new file with the sample id and the path where it is located: `/bulk/sycuro_bulk/daniel/diabetes/UC_UT_collaboration/anvio/all_genomes_NCBI/name_and_path_all.txt`.
+2. Download the default config file by running `anvi-run-workflow -w contigs --get-default-config config-contigs-default.json`
+3. Download the databases I am planning to use (in my case KEGG, COG, and Taxonomy). For this, I ran: `anvi-setup-ncbi-cogs --threads 16`, followed by `anvi-setup-scg-taxonomy` (this one downloads GTDB genome information), and finally `anvi-setup-kegg-data`. The databases will be downloaded in the home directory, so make sure you have at least ~200-300 GB free.
+4. Modify the config file, in a way that it sets the number of threads, and the file containing the path and name of the samples is named properly.
+5. For some reason, the contigs worklow kept crashing when submitting it through slurm, so I decided to use an interactive node instead.
+6. Run the contigs workflow like this: `anvi-run-workflow -w contigs -c config_default.json`. In my case, with 116 samples, I had to run the interactive node 3 times for 5 hours each. However, when rerunning it, anvi'o is a bit picky on rewriting some of the files and pick up where it left off. So, in that case I had to run this command `anvi-run-workflow - contigs -c config_default.json --additional-params --rerun-incomplete --keep-going`. This gave me the contigs database I need for downstream steps.
+
+
+
