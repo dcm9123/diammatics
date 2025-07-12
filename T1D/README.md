@@ -81,7 +81,7 @@ The next step is to generate a .txt file that describes the hmm sources for a co
 
 `anvi-script-gen-hmm-hits-matrix-across-genomes -e name_and_path_to_contigs.txt --hmm-source Bacteria_71 -o hmm_hits_matrix_across_116_genomes.txt`  The output file from this command shows me which genomes have which hmm source.
 
-The next part was to create a new artifact containing the genome storage information that I have so far. For this to be done, I ran: `anvi-gen-genomes-storage -e name_and_path_to_contigs.txt --output-file storage_116-GENOMES.db`
+The next part was to create a new artifact containing the genome storage information that I have so far. For this to be done, I ran: `anvi-gen-genomes-storage -e name_and_path_to_contigs.txt --output-file storage_116-GENOMES.db`. Whilst this is typically ran in a pangenomics workflow, I will be using these genes to generate a gene concatenated file for a phylogenomics tree.
 
 
 
