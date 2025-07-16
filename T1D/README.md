@@ -124,7 +124,13 @@ ML-NNI round 3 ...............................: LogLk = -608959.059, NNIs = 0, m
 Final ML-NNI round .........................: LogLk = -608913.064, NNIs = 0, Time = 133.33 sec
 Optimize all lengths .........................: LogLk = -608912.314, Time = 143.42 sec
 ```
+### July 15th, 2025
 
+With my R code, I was able to determine which samples are repeated between w5 and w6, and w9 and w10. Which are the following:
+
+`$List1_vs_List2
+ [1] "036R_R_M"  "073R_0_M"  "1030R_L_M" "1067R_R_M" "1121R_0_M" "1151R_R_M" "1193R_R_F" "2404R_R_F" "2446R_L_F" "2529R_R_F"
+[11] "3795R_0_F" "3909R_0_M" "3918R_R_M" "3969R_0_F" "3971R_L_F" "3975R_R_F"`
 
 
 
