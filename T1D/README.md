@@ -132,7 +132,8 @@ With my R code, I was able to determine which samples are repeated between w5 an
  [1] "036R_R_M"  "073R_0_M"  "1030R_L_M" "1067R_R_M" "1121R_0_M" "1151R_R_M" "1193R_R_F" "2404R_R_F" "2446R_L_F" "2529R_R_F"
 [11] "3795R_0_F" "3909R_0_M" "3918R_R_M" "3969R_0_F" "3971R_L_F" "3975R_R_F"`
 
+However, because the codes are a mess, I will have to manually check some of them. For instance, in some cases the 'F' is before the community consortia, and sometimes the sex is indicated as "Female" or "Male" right before the Illumina sample code. Some of them have the word "Pellet" and some others don't, so I have to remove that word too. 
 
-
+It seems like all 16 samples from week 6 are repeated in week 5. Therefore, I'll remove all sample 6 from the analyses. No repetitions are present between w9 and w10
 
 
