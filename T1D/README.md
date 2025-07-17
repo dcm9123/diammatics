@@ -140,4 +140,10 @@ It seems like all 16 samples from week 6 are repeated in week 5. Therefore, I'll
 ### July 16th, 2025
 I decided to re-structure the original code that I had for data formatting and manipulation. That way I had a cleaner code that shows me step by step what I was doing. This new file was derived from the original `FemMicro16S_db2.R`, and it is titled `phyloseq_t1d_db2.R`. I finalized working on it, and I finally produced 4 count tables of taxa and samples divided by consortia. I have also removed the 16 repeated samples from week 6, so now I only have w5, w7, w9, w10 and the four consortia. The four otu_tables saved as .csv files are included here too, and named: ```ps_ns1_final.csv, ps_ns6_final.csv, ps_s2_final.csv, ps_s5_final.csv```
 
+### July 17th, 2025
+I have been making progress with this 2nd PICRUSt2 approach we have decided to move on with. For reference, this is what I need for my 'local files':
+1. A full-length 16S (not v3v4) alignment from my reference database with a name that will be the same for the other files but with different extensions (i.e. ns1_local.fasta)
+2. A phylogenetic tree from this alignment (i.e. ns1_local.tre)
+3. An hmm profile from these references (i.e. ns1_local.hmm)
+4. A model from the phylogenetic tree that was built with these references (i.e. ns1_local.model)
 
