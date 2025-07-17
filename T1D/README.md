@@ -137,3 +137,7 @@ However, because the codes are a mess, I will have to manually check some of the
 It seems like all 16 samples from week 6 are repeated in week 5. Therefore, I'll remove all sample 6 from the analyses. No repetitions are present between w9 and w10
 
 
+### July 16th, 2025
+I decided to re-structure the original code that I had for data formatting and manipulation. That way I had a cleaner code that shows me step by step what I was doing. This new file was derived from the original `FemMicro16S_db2.R`, and it is titled `phyloseq_t1d_db2.R`. I finalized working on it, and I finally produced 4 count tables of taxa and samples divided by consortia. I have also removed the 16 repeated samples from week 6, so now I only have w5, w7, w9, w10 and the four consortia. The four otu_tables saved as .csv files are included here too, and named: ```ps_ns1_final.csv, ps_ns6_final.csv, ps_s2_final.csv, ps_s5_final.csv```
+
+
