@@ -150,4 +150,6 @@ I have been making progress with this 2nd PICRUSt2 approach we have decided to m
 ### July 18th, 2025
 I was able to write a code that takes the names of the 16S headers from my fasta file, and then creates the annotated version of the KOs and ECs with those names. So, originally I was running the code `eggnog_to_picrust.py` but the name of the assemblies were exactly the same as the genomes I was running. Because PICRUSt2 needs the names to match, I had to come up with a code that I've named `adding_genomes_ko_ec.py`. This code looks at the headers from the 16S db file provided (in my case there's a total of 209 sequences from barrnap or Sanger from 116 strains) and matches the ones from my annotated EC or KO files. Once they match, it copies the entire row of annotated KOs and ECs into a new file that is compatible with PICRUSt2.
 
+I have added the files that are produced by this script; their names are `KO_for_picrust2.tsv` and `EC_for_picrust2.tsv`
+
 
