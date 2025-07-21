@@ -157,4 +157,7 @@ I wrote a Python script that takes the information from my FINAL master file wit
 
 My initial code `16S_CNV_IMG.py` took the original or alternative names found for the original strain or its closest sister taxa from the rrnDB-v5.1 database and printed out the median, count, min, max of 16S CNV. Then I took the median as the number to use for the final 16S CNV. After that, the code that I used to do what I explained in the paragraph above is called `adding_16S_CNV.py`
 
+### July 21st, 2025
+
+
 
