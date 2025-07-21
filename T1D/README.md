@@ -1,4 +1,4 @@
-# PICRUSt2
+# PICRUSt2 & Maaslin2
 For PICRUST2 I have to create 4 individual phylogenetic trees from the consortia. For this, I will use the files located in `/bulk/sycuro_bulk/daniel/diabetes/UC_UT_collaboration/16S_data/16S_after_fixing_and_discussion/good_files_to_use/t1d_consortia_dbs` , specifically the ones called:
 
 `rm_dupt1d_db2_withDups_S_NS1_species.fasta`
