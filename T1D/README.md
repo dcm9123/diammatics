@@ -155,4 +155,6 @@ I have added the files that are produced by this script; their names are `KO_for
 ### July 20th, 2025
 I wrote a Python script that takes the information from my FINAL master file with the final 16S count number, and then it creates a new .txt file that has the 16S database2 ID name and the 16S count that is linked to that file. So, because I originally have 116 genomes, but a total of 209 16S entries for my database, I had to link the number of 16S from the genome file to the 16S db file, having repeated CNV numbers for its correspoinding 16S id. For instance, if I have a full-length 16S Sanger sequencing from A. muciniphila, and a full-length 16S in silico genome-extracted, then I will have two entries of the same organism with the same 16S CNV that I have to retrieve from my master file. This new file will be used for PICRUSt2 and its named `16S.txt`
 
+My initial code `16S_CNV_IMG.py` took the original or alternative names found for the original strain or its closest sister taxa from the rrnDB-v5.1 database and printed out the median, count, min, max of 16S CNV. Then I took the median as the number to use for the final 16S CNV. After that, the code that I used to do what I explained in the paragraph above is called `adding_16S_CNV.py`
+
 
