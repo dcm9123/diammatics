@@ -160,16 +160,16 @@ My initial code `16S_CNV_IMG.py` took the original or alternative names found fo
 ### July 21st, 2025
 I have moved on with the PICRUSt2 analysis. I have created in my local computer the following reference files and input files for each consortia. For simplicity, I am only including the NS1 example:
 
-Working directory:
+<ins>Working directory</ins>:
 `/Users/danielcm/Desktop/Sycuro/Projects/Diabetes/picrust2_june232025`
 
-Reference files (only references! Not ASVs from the FemMicro output!):
+<ins>Reference files</ins> (only references! Not ASVs from the FemMicro output!):
 - `ns1_local_file/ns1_local_file.fasta` this one has the 16S full-length reference sequences (v1v9 and barrnap) aligned with MAFFT.
 - `ns1_local_file/ns1_local_file.hmm` this one has the hmm file created from the previous file. It needs to be done from the alignment, not from the unaligned reference sequences
 - `ns1_local_file/ns1_local_file.tre` this one is the tree created with RAxML from the aligned reference file
 - `ns1_local_file/ns1_local_file.model` this one is the model used to create said tree.
 
-General annotation files that will be used for all 4 consortia:
+<ins>General annotation files that will be used for all 4 consortia</ins>:
 - `picrust2_formatted_annotations/16S.txt` This one has the 16S CNV for all the genomes in all consortia that I generated with the `16S_CNV_IMG.py` script followed by `adding_16S_CNVs.py`
 - `picrust2_formatted_annotations/EC_for_picrust2.tsv` This one is the ECs for all the genomes in all consortia that I generated with `eggnog_to_picrust2.py` followed by `adding_genomes_ko_ec.py`
 - `picrust2_formatted_annotations/KO_for_picrust2.tsv` This one is the KOs for all the genomes in all consortia that I generated with `eggnog_to_picrust2.py` followed by `adding_genomes_ko_ec.py`
