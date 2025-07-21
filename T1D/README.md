@@ -180,7 +180,10 @@ I have moved on with the PICRUSt2 analysis. I have created in my local computer 
 
 Placement sequence command run: `place_seqs.py -s ns1_input_files/ns1_ASVs.fasta --ref_dir ns1_local_file/ -o ns1_output/ns1_placed_seqs.tre -p 10 --intermediate ns1_output/placement_working_ns1`
 
-Hidden state prediction command: `hsp.py -t ns1_output/ns1_placed_seqs.tre --observed_trait_table picrust2_formatted_annotations/16S.txt -p 10 -n -o ns1_output/ns1_marker_nsti.predicted.tsv`
+Hidden state prediction command: 
+`hsp.py -t ns1_output/ns1_placed_seqs.tre --observed_trait_table picrust2_formatted_annotations/16S.txt -p 10 -n -o ns1_output/ns1_16S_nsti.predicted.tsv`
+`hsp.py -t ns1_output/ns1_placed_seqs.tre --observed_trait_table picrust2_formatted_annotations/EC_for_picrust2.tsv -p 10 -n -o ns1_output/ns1_EC_nsti.predicted.tsv`
+`hsp.py -t ns1_output/ns1_placed_seqs.tre --observed_trait_table picrust2_formatted_annotations/KO_for_picrust2.tsv -p 10 -n -o ns1_output/ns1_KO_nsti.predicted.tsv`
 
 
 
