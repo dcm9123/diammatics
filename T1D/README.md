@@ -174,7 +174,7 @@ General annotation files that will be used for all 4 consortia:
 - `picrust2_formatted_annotations/EC_for_picrust2.tsv` This one is the ECs for all the genomes in all consortia that I generated with `eggnog_to_picrust2.py` followed by `adding_genomes_ko_ec.py`
 - `picrust2_formatted_annotations/KO_for_picrust2.tsv` This one is the KOs for all the genomes in all consortia that I generated with `eggnog_to_picrust2.py` followed by `adding_genomes_ko_ec.py`
 
-Input files: 
+<ins>Input files</ins>: 
 - `ns1_input_files/ns1_ASVs.fasta` the unaligned fasta sequences from the FemMicro output
 - `ps_ns1_asv_final_renamed.csv` the ASV count table from FemMicro. Each ASV was renamed to 'ASV1, ASV2, ASV3...'
 
