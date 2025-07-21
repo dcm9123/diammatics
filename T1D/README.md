@@ -183,18 +183,23 @@ I have moved on with the PICRUSt2 analysis. I have created in my local computer 
 To convert from `ps_ns1_asv_final_renamed.csv` to biom, I first had to transform the .csv file into a .tsv file by simply doing  `sed 's/,/\t/g' ps_ns1_asv_final_renamed.csv > ps_ns1_asvs.tsv`. Then, I added the first 'cell' of the first row to be `#OTU ID`. After that, I replaced the "" that are surrounding the sample names and ASV IDs (this should be fixable in my R code...) by going into vi, and simply putting `%s/"//g`. Finally I converted my .tsv file into biom by doing `biom convert -i ps_ns1_asvs.tsv -o ps_ns1_asvs.biom --to-hdf5 --table-type="OTU table"`
 - ps_ns1_asv_final_renamed.csv` the ASV count table from FemMicro. Each ASV was renamed to 'ASV1, ASV2, ASV3...'
 
-<ins>**Placement sequence command run**</ins>: `place_seqs.py -s ns1_input_files/ns1_ASVs.fasta --ref_dir ns1_local_file/ -o ns1_output/ns1_placed_seqs.tre -p 10 --intermediate ns1_output/placement_working_ns1`
+<ins>**Placement sequence command run**</ins>: 
+
+`place_seqs.py -s ns1_input_files/ns1_ASVs.fasta --ref_dir ns1_local_file/ -o ns1_output/ns1_placed_seqs.tre -p 10 --intermediate ns1_output/placement_working_ns1`
 
 <ins>**Hidden state prediction commands**</ins>: 
+
 `hsp.py -t ns1_output/ns1_placed_seqs.tre --observed_trait_table picrust2_formatted_annotations/16S.txt -p 10 -n -o ns1_output/ns1_16S_nsti.predicted.tsv`
 `hsp.py -t ns1_output/ns1_placed_seqs.tre --observed_trait_table picrust2_formatted_annotations/EC_for_picrust2.tsv -p 10 -n -o ns1_output/ns1_EC_nsti.predicted.tsv`
 `hsp.py -t ns1_output/ns1_placed_seqs.tre --observed_trait_table picrust2_formatted_annotations/KO_for_picrust2.tsv -p 10 -n -o ns1_output/ns1_KO_nsti.predicted.tsv`
 
 <ins>**Metagenome prediction commands**</ins>:
+
 `metagenome_pipeline.py -i ns1_input_files/ps_ns1_asvs.biom -m ns1_output/ns1_16S_nsti_predicted.tsv -f ns1_output/ns1_KO_nsti.predicted.tsv -o ns1_output/ns1_KO_metagenome_out --wide_table --strat_out`
 `metagenome_pipeline.py -i ns1_input_files/ps_ns1_asvs.biom -m ns1_output/ns1_16S_nsti_predicted.tsv -f ns1_output/ns1_EC_nsti.predicted.tsv -o ns1_output/ns1_EC_metagenome_out --wide_table --strat_out`
 
-<ins>**Pathway prediction commands**</ins>L
+<ins>**Pathway prediction commands**</ins>:
+
 `pathway_pipeline.py -i ns1_output/ns1_EC_metagenome_out/pred_metagenome_strat.tsv -m pathway_mapfiles/metacyc_path2rxn_struc_filt_pro.txt -o ns1_output/ns1_pathway_out --intermediate ns1_output/ns1_EC_intermediate_pathway_files --coverage -p 10 --per_sequence_contrib --per_sequence_abun ns1_output/ns1_EC_metagenome_out/seqtab_norm.tsv --per_sequence_function ns1_output/ns1_EC_metagenome_out/pred_metagenome_strat.tsv --wide_table`
 
 
