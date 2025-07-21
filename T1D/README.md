@@ -158,7 +158,11 @@ I wrote a Python script that takes the information from my FINAL master file wit
 My initial code `16S_CNV_IMG.py` took the original or alternative names found for the original strain or its closest sister taxa from the rrnDB-v5.1 database and printed out the median, count, min, max of 16S CNV. Then I took the median as the number to use for the final 16S CNV. After that, the code that I used to do what I explained in the paragraph above is called `adding_16S_CNV.py`
 
 ### July 21st, 2025
-I have moved on with the PICRUSt2 analysis. I have created in my local computer the following reference files and input files for each consortia:
+I have moved on with the PICRUSt2 analysis. I have created in my local computer the following reference files and input files for each consortia. For simplicity, I am only including the NS1 example:
+
+Working directory:
+`/Users/danielcm/Desktop/Sycuro/Projects/Diabetes/picrust2_june232025`
+
 Reference files (only references! Not ASVs from the FemMicro output!):
 - `ns1_local_file/ns1_local_file.fasta` this one has the 16S full-length reference sequences (v1v9 and barrnap) aligned with MAFFT.
 - `ns1_local_file/ns1_local_file.hmm` this one has the hmm file created from the previous file. It needs to be done from the alignment, not from the unaligned reference sequences
@@ -168,6 +172,8 @@ Reference files (only references! Not ASVs from the FemMicro output!):
 Input files: 
 - `ns1_input_files/ns1_ASVs.fasta` the unaligned fasta sequences from the FemMicro output
 - `ps_ns1_asv_final_renamed.csv` the ASV count table from FemMicro. Each ASV was renamed to 'ASV1, ASV2, ASV3...'
+
+Placement sequence command run: `place_seqs.py -s ns1_input_files/ns1_ASVs.fasta --ref_dir ns1_local_file/ -o ns1_output/ns1_placed_seqs.tre -p 10 --intermediate ns1_output/placement_working_ns1`
 
 
 
