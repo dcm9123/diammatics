@@ -152,4 +152,7 @@ I was able to write a code that takes the names of the 16S headers from my fasta
 
 I have added the files that are produced by this script; their names are `KO_for_picrust2.tsv` and `EC_for_picrust2.tsv`. Both of them are found in my local computer in this path: `/Users/danielcm/Desktop/Sycuro/Projects/Diabetes/picrust2_june232025/`
 
+### July 20th, 2025
+I wrote a Python script that takes the information from my FINAL master file with the final 16S count number, and then it creates a new .txt file that has the 16S database2 ID name and the 16S count that is linked to that file. So, because I originally have 116 genomes, but a total of 209 16S entries for my database, I had to link the number of 16S from the genome file to the 16S db file, having repeated CNV numbers for its correspoinding 16S id. For instance, if I have a full-length 16S Sanger sequencing from A. muciniphila, and a full-length 16S in silico genome-extracted, then I will have two entries of the same organism with the same 16S CNV that I have to retrieve from my master file. This new file will be used for PICRUSt2 and its named `16S.txt`
+
 
