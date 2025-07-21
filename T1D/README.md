@@ -169,11 +169,18 @@ Reference files (only references! Not ASVs from the FemMicro output!):
 - `ns1_local_file/ns1_local_file.tre` this one is the tree created with RAxML from the aligned reference file
 - `ns1_local_file/ns1_local_file.model` this one is the model used to create said tree.
 
+General annotation files that will be used for all 4 consortia:
+- `picrust2_formatted_annotations/16S.txt` This one has the 16S CNV for all the genomes in all consortia that I generated with the `16S_CNV_IMG.py` script followed by `adding_16S_CNVs.py`
+- `picrust2_formatted_annotations/EC_for_picrust2.tsv` This one is the ECs for all the genomes in all consortia that I generated with `eggnog_to_picrust2.py` followed by `adding_genomes_ko_ec.py`
+- `picrust2_formatted_annotations/KO_for_picrust2.tsv` This one is the KOs for all the genomes in all consortia that I generated with `eggnog_to_picrust2.py` followed by `adding_genomes_ko_ec.py`
+
 Input files: 
 - `ns1_input_files/ns1_ASVs.fasta` the unaligned fasta sequences from the FemMicro output
 - `ps_ns1_asv_final_renamed.csv` the ASV count table from FemMicro. Each ASV was renamed to 'ASV1, ASV2, ASV3...'
 
 Placement sequence command run: `place_seqs.py -s ns1_input_files/ns1_ASVs.fasta --ref_dir ns1_local_file/ -o ns1_output/ns1_placed_seqs.tre -p 10 --intermediate ns1_output/placement_working_ns1`
+
+Hidden state prediction command: `hsp.py -t ns1_output/ns1_placed_seqs.tre --observed_trait_table picrust2_formatted_annotations/16S.txt -p 10 -n -o ns1_output/ns1_marker_nsti.predicted.tsv`
 
 
 
