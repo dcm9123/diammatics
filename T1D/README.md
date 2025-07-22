@@ -181,7 +181,7 @@ I have moved on with the PICRUSt2 analysis. I have created in my local computer 
 
 <ins>Formatting input biom file</ins>:
 To convert from `ps_ns1_asv_final_renamed.csv` to biom, I first had to transform the .csv file into a .tsv file by simply doing  `sed 's/,/\t/g' ps_ns1_asv_final_renamed.csv > ps_ns1_asvs.tsv`. Then, I added the first 'cell' of the first row to be `#OTU ID`. After that, I replaced the "" that are surrounding the sample names and ASV IDs (this should be fixable in my R code...) by going into vi, and simply putting `%s/"//g`. Finally I converted my .tsv file into biom by doing `biom convert -i ps_ns1_asvs.tsv -o ps_ns1_asvs.biom --to-hdf5 --table-type="OTU table"`
-- ps_ns1_asv_final_renamed.csv` the ASV count table from FemMicro. Each ASV was renamed to 'ASV1, ASV2, ASV3...'
+- `ps_ns1_asv_final_renamed.csv` the ASV count table from FemMicro. Each ASV was renamed to 'ASV1, ASV2, ASV3...'
 
 <ins>**Placement sequence command run**</ins>: 
 
