@@ -206,6 +206,8 @@ To convert from `ps_ns1_asv_final_renamed.csv` to biom, I first had to transform
 `pathway_pipeline.py -i ns1_output/ns1_EC_metagenome_out/pred_metagenome_strat.tsv -m pathway_mapfiles/metacyc_path2rxn_struc_filt_pro.txt -o ns1_output/ns1_pathway_out --intermediate ns1_output/ns1_EC_intermediate_pathway_files --coverage -p 10 --per_sequence_contrib --per_sequence_abun ns1_output/ns1_EC_metagenome_out/seqtab_norm.tsv --per_sequence_function ns1_output/ns1_EC_metagenome_out/pred_metagenome_strat.tsv --wide_table`
 
 
+After generating every KO and EC file for each consortia, I wrote a script called `merging_functional_predictions.py`. This script will merge the KOs and ECs from each individual file into a larger one with all the samples and all the KOs present in all 4 files. The samples add up to 279 (which do match my numbers for mice samples). The name of these two final files that I will be using in Maaslin2 are `KO_merged_metagenome.tsv` and `EC_merged_metagenome.tsv`
+
 
 
 
