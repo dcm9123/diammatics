@@ -190,7 +190,9 @@ To convert from `ps_ns1_asv_final_renamed.csv` to biom, I first had to transform
 <ins>**Hidden state prediction commands**</ins>: 
 
 `hsp.py -t ns1_output/ns1_placed_seqs.tre --observed_trait_table picrust2_formatted_annotations/16S.txt -p 10 -n -o ns1_output/ns1_16S_nsti.predicted.tsv`
+
 `hsp.py -t ns1_output/ns1_placed_seqs.tre --observed_trait_table picrust2_formatted_annotations/EC_for_picrust2.tsv -p 10 -n -o ns1_output/ns1_EC_nsti.predicted.tsv`
+
 `hsp.py -t ns1_output/ns1_placed_seqs.tre --observed_trait_table picrust2_formatted_annotations/KO_for_picrust2.tsv -p 10 -n -o ns1_output/ns1_KO_nsti.predicted.tsv`
 
 <ins>**Metagenome prediction commands**</ins>:
