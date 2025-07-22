@@ -198,6 +198,7 @@ To convert from `ps_ns1_asv_final_renamed.csv` to biom, I first had to transform
 <ins>**Metagenome prediction commands**</ins>:
 
 `metagenome_pipeline.py -i ns1_input_files/ps_ns1_asvs.biom -m ns1_output/ns1_16S_nsti_predicted.tsv -f ns1_output/ns1_KO_nsti.predicted.tsv -o ns1_output/ns1_KO_metagenome_out --wide_table --strat_out`
+
 `metagenome_pipeline.py -i ns1_input_files/ps_ns1_asvs.biom -m ns1_output/ns1_16S_nsti_predicted.tsv -f ns1_output/ns1_EC_nsti.predicted.tsv -o ns1_output/ns1_EC_metagenome_out --wide_table --strat_out`
 
 <ins>**Pathway prediction commands**</ins>:
