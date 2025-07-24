@@ -208,6 +208,8 @@ To convert from `ps_ns1_asv_final_renamed.csv` to biom, I first had to transform
 
 After generating every KO and EC file for each consortia, I wrote a script called `merging_functional_predictions.py`. This script will merge the KOs and ECs from each individual file into a larger one with all the samples and all the KOs present in all 4 files. The samples add up to 279 (which do match my numbers for mice samples). The name of these two final files that I will be using in Maaslin2 are `KO_merged_metagenome.tsv` and `EC_merged_metagenome.tsv`
 
+h
+
 
 
 
