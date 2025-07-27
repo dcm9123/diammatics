@@ -208,7 +208,9 @@ To convert from `ps_ns1_asv_final_renamed.csv` to biom, I first had to transform
 
 After generating every KO and EC file for each consortia, I wrote a script called `merging_functional_predictions.py`. This script will merge the KOs and ECs from each individual file into a larger one with all the samples and all the KOs present in all 4 files. The samples add up to 279 (which do match my numbers for mice samples). The name of these two final files that I will be using in Maaslin2 are `KO_merged_metagenome.tsv` and `EC_merged_metagenome.tsv`
 
-h
+### July 27th, 2025
+
+I wrote a script that is called `eggnog_sanity_check.py` that makes sure the number of KOs and ECs from the final merged file are consistent with the ones from each individual file. That way I can ensure that I have the right number of features. When doing so, I noticed there was a bug with `pandas`, as it was (for some unknown reason) not counting the last ~20 lines of each modified KO file (by modified I mean the part where I delete the top 3 and last 4 lines). This bug was found in `eggnog_to_picrust.py` in the `formatting_original_file` def function. After fixing the bug using a different approach, I tested the eggnog_sanity_check script one more time.
 
 
 
