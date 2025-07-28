@@ -212,6 +212,38 @@ After generating every KO and EC file for each consortia, I wrote a script calle
 
 I wrote a script that is called `eggnog_sanity_check.py` that makes sure the number of KOs and ECs from the final merged file are consistent with the ones from each individual file. That way I can ensure that I have the right number of features. When doing so, I noticed there was a bug with `pandas`, as it was (for some unknown reason) not counting the last ~20 lines of each modified KO file (by modified I mean the part where I delete the top 3 and last 4 lines). This bug was found in `eggnog_to_picrust.py` in the `formatting_original_file` def function. After fixing the bug using a different approach, I tested the eggnog_sanity_check script one more time.
 
+### July 28th, 2025
+
+Going back to my previous good database (good_files_to_use), I checked the sequences and numbers, and I have the following information:
+- Original number of Sanger-sequenced and good-quality IDs: 111
+- Filtered Sanger-sequenced and good-quality with BLAST using an e-value and identity percent: 106
+- Number of filtered-out identical sequences with seqkit: 0 (We kept the 106).
+- Number of sequences kept: 106
+
+- Original number of in silico 16S sequences from the genomes (using barrnap): 139
+- Filtered number of in silico 16S sequences that did match the genus and/or genus and species: 114
+- Number of sequences kept: 114
+
+- Total to keep (for now): 220
+
+After filtering by match and good quality, we had a total of 220 sequences. From here, I split the sequences according to their corresponding consortia. Getting something like this:
+- NS1 consortia: 57
+- NS6 consortia: 60
+- S2 consortia: 54
+- S5 consortia: 49
+
+Then I ran seqkit to remove IDs with identical sequences, as RAxML cannot handle that, leaving me with this final number:
+- NS1 consortia rmdup: 54
+- NS6 consortia rmdup: 55
+- S2 consortia rmdup: 52
+- S5 consortia rmdup: 48
+
+This gave me a final number of 209 sequences in total, mixing both 16S in silico and 16S by Sanger. The IDs that were removed are the following:
+NS1: Barrnap_116_B.longum, Barrnap_009_B.longum, Barrnap_018_E.coli
+NS6: Barrnap_033_B.stercoris, Barrnap_036_B.uniformis, Barrnap_117_B.uniformis, Barrnap_050_E.faecalis, Barrnap_047_E.porci
+S2: Barrnap_077_E.avium, Barrnap_082_H.effluvi
+S5: Barrnap_091 Alistipes finegoldii
+
 
 
 
