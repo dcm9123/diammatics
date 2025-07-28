@@ -239,10 +239,13 @@ Then I ran seqkit to remove IDs with identical sequences, as RAxML cannot handle
 - S5 consortia rmdup: 48
 
 This gave me a final number of 209 sequences in total, mixing both 16S in silico and 16S by Sanger. The IDs that were removed are the following:
-NS1: Barrnap_116_B.longum, Barrnap_009_B.longum, Barrnap_018_E.coli
-NS6: Barrnap_033_B.stercoris, Barrnap_036_B.uniformis, Barrnap_117_B.uniformis, Barrnap_050_E.faecalis, Barrnap_047_E.porci
-S2: Barrnap_077_E.avium, Barrnap_082_H.effluvi
-S5: Barrnap_091 Alistipes finegoldii
+NS1: `Barrnap_116_B.longum, Barrnap_009_B.longum, Barrnap_018_E.coli`
+
+NS6: `Barrnap_033_B.stercoris, Barrnap_036_B.uniformis, Barrnap_117_B.uniformis, Barrnap_050_E.faecalis, Barrnap_047_E.porci`
+
+S2: `Barrnap_077_E.avium, Barrnap_082_H.effluvi`
+
+S5: `Barrnap_091 Alistipes finegoldii`
 
 
 
