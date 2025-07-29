@@ -249,6 +249,10 @@ S2: Barrnap_077_E.avium, Barrnap_082_H.effluvi
 S5: Barrnap_091 Alistipes finegoldii
 
 
+### July 29th, 2025
+After running the new sanity check scripts and the output files, I noticed a 2nd bug that consisted of calling the total number of ECs across a row. And, if said row, has a comment with the word 'EC:1.2.3.4)' then it would count it as well, inflating that particular EC. After fixing both of the bugs, the output from my `eggnog_sanity_check.py` now agreed between the number of KOs of each individual sample count and the merged file. The results are stored here and are called: `EggNOG_sanity_check.tsv`
+
+
 
 
 
