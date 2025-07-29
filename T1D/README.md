@@ -265,7 +265,42 @@ On top of that, I will be trying other different combinations and stratifying th
 
 I am back with Anvi'o, but this time I need to rerun the genome annotation, its enrichment, and get new values by considering the polished genomes. My data annotated is found in `/bulk/sycuro_bulk/daniel/diabetes/UC_UT_collaboration/anvio/all_genomes_NCBI_july2025/`. 
 
-<ins> test</ins>
+<ins> Verifying functional features available </ins>
+First, I need to make sure what type of feature enrichment I had performed in the past. To determine this, I ran the command `anvi-db-info *006-contigs.db`. I don't need to run this command on every contig database, as every genome was run simultaneously in the same batch. The available features are:
+```
+AVAILABLE GENE CALLERS
+===============================================
+* 'pyrodigal-gv' (4,595 gene calls)                                                               
+* 'Transfer_RNAs' (59 gene calls)                                                                 
+* 'Ribosomal_RNA_23S' (2 gene calls)                                                              
+* 'Ribosomal_RNA_16S' (2 gene calls)                                                              
+
+                                                                                                  
+AVAILABLE FUNCTIONAL ANNOTATION SOURCES
+===============================================
+* COG24_CATEGORY (2,728 annotations)                                                              
+* COG24_FUNCTION (2,728 annotations)                                                              
+* COG24_PATHWAY (724 annotations)                                                                 
+* KEGG_BRITE (2,055 annotations)                                                                  
+* KEGG_Class (459 annotations)                                                                    
+* KEGG_Module (459 annotations)                                                                   
+* KOfam (2,058 annotations)                                                                       
+* Transfer_RNAs (59 annotations)                                                                  
+
+                                                                                                  
+AVAILABLE HMM SOURCES
+===============================================
+* 'Archaea_76' (76 models with 34 hits)                                                           
+* 'Bacteria_71' (71 models with 72 hits)                                                          
+* 'Protista_83' (83 models with 2 hits)                                                           
+* 'Ribosomal_RNA_12S' (1 model with 0 hits)                                                       
+* 'Ribosomal_RNA_16S' (3 models with 2 hits)                                                      
+* 'Ribosomal_RNA_18S' (1 model with 0 hits)                                                       
+* 'Ribosomal_RNA_23S' (2 models with 2 hits)                                                      
+* 'Ribosomal_RNA_28S' (1 model with 0 hits)                                                       
+* 'Ribosomal_RNA_5S' (5 models with 0 hits)                                                       
+* 'Transfer_RNAs' (61 models with 59 hits)
+```
 
 
 
