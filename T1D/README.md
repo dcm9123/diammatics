@@ -250,10 +250,22 @@ S5: Barrnap_091 Alistipes finegoldii
 
 
 ### July 29th, 2025
-After running the new sanity check scripts and the output files, I noticed a 2nd bug that consisted of calling the total number of ECs across a row. And, if said row, has a comment with the word 'EC:1.2.3.4)' then it would count it as well, inflating that particular EC. After fixing both of the bugs, the output from my `eggnog_sanity_check.py` now agreed between the number of KOs of each individual sample count and the merged file. The results are stored here and are called: `EggNOG_sanity_check.tsv`
+After running the new sanity check scripts and the output files, I noticed a 2nd bug that consisted of calling the total number of ECs across a row. And, if said row, has a comment with the word 'EC:1.2.3.4)' then it would count it as well, inflating that particular EC. After fixing both of the bugs, the output from my `eggnog_sanity_check.py` now agreed between the number of KOs of each individual sample count and the merged file. The results are stored here and are called: `EggNOG_sanity_check.tsv`. After that, I decided to move on with Maaslin2. For this, I extracted the metadata info from my phyloseq script, and created two new files: `metadata_ps_without_w7.csv` and `metadata_ps_with_w7.csv`. Just like its implied in its name, I considered the data from week 7 in one file, and in the other I ommited it. Then, I generated a Maaslin2 script called `maaslin2_t1d_db2.R`. I ran multiple combinations between metadata, for instance:
 
+- NS1 vs S2
+- Male vs Female
+- w5w6 vs w9w10
+- NS1w5w6 vs NS1w9w10
+- S2w5w6 vs S2w9w10
+- NS1w5w6 vs S2w5w6
 
+On top of that, I will be trying other different combinations and stratifying the data even further to see if I pick on any particular features predicted to be enriched.
 
+## Anvi'o
+
+I am back with Anvi'o, but this time I need to rerun the genome annotation, its enrichment, and get new values by considering the polished genomes. My data annotated is found in `/bulk/sycuro_bulk/daniel/diabetes/UC_UT_collaboration/anvio/all_genomes_NCBI_july2025/`. 
+
+<ins> test</ins>
 
 
 
