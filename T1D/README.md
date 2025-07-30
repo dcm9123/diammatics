@@ -302,5 +302,71 @@ AVAILABLE HMM SOURCES
 * 'Transfer_RNAs' (61 models with 59 hits)
 ```
 
+The next step was to get the KEGG modules for my genomes. To do that, I ran: 
+
+After that, I decided to also get a matrix of the presence and completeness of a pathwise and stepwise modules, so for that I ran:
+
+`anvi-estimate-metabolism --kegg-data-dir KEGG_archive_unpacked/KEGG/ --external-genomes name_and_path_to_contigs.txt --matrix-format`
+
+The output of this command generated a matrix file with all the 116 genomes and the KOs identified: 
+```
+metabolism-enzyme_hits-MATRIX.txt
+metabolism-module_pathwise_completeness-MATRIX.txt
+metabolism-module_pathwise_presence-MATRIX.txt
+metabolism-module_stepwise_completeness-MATRIX.txt
+metabolism-module_stepwise_presence-MATRIX.txt
+```
+
+<ins>Key difference between Pathwise and Stepwise module calculation </ins>
+
+
+
+As a side note, th external genomes file (name_and_path_to_contigs.txt) is also in this repository. Finally, I wanted to create a similar output file, except that this time I included more functions, specifically KOfam, KEGG Modules, Kegg Class, and Kegg Brite. For that, I ran this command:
+
+`for function in {KOfam,KEGG_Module,KEGG_Class,KEGG_BRITE}; do anvi-compute-functional-enrichment-across-genomes -e name_and_path_to_contigs.txt -o functional_enrichment_consortia_${function}.tsv -G groups.txt --annotation-source ${function} -F ${function}_consortia_contribution.tsv; done;`
+
+Which gave me the files with the p-values and adjusted p-values for all consortia: 
+```
+functional_enrichment_consortia_KEGG_BRITE.tsv
+functional_enrichment_consortia_KOfam.tsv
+functional_enrichment_consortia_KEGG_Class.tsv
+functional_enrichment_consortia_KEGG_Module.tsv
+KEGG_BRITE_consortia_contribution.tsv
+KEGG_Class_consortia_contribution.tsv
+KEGG_Module_consortia_contribution.tsv
+KOfam_consortia_contribution.tsv
+```
+
+### July 30th, 2025
+
+After playing for a while with Anvi'o, I have decided to make a heatmap of each genome and consortia showing the Pathwise Completeness and Stepwise Completeness values (0-1). If you remember, a pathwise completeness is the result of collecting the KOs for a particular pathway/module. Then, if multiple paths exist, it will get the path with the highest number of KOs and showing how many were present in said pathway (i.e. 0.80 if there are 5 steps, and at least 1 KO is in each step). The stepwise completeness takes into account the sequential order of the steps, so it won't necessarily agree with the pathwise completeness value. In this case, it will show if the pathway is possible to occur, partially, or not at all. For instance, if I have 4 genomes and a the lactic acid fermentation pathway with 3 steps (oversimplified, of course) and 3 enzymes, and I have this:
+
+Genome 1: Enzymes A,B is equal to a pathwise completenes of 0.66 and stepwise completeness of 0.66
+Genome 2: Enzymes A,C is equal to a pathwise completenes of 0.66 and stepwise completeness of 0, as there is no middle enzyme to complete the final product
+Genome 3: Enzymes B,C is equal to a pathwise completenes of 0.66 and stepwise completeness of 0, as there is no enzyme to initiate the reaction
+Genome 4: Enzymes A,B,C is equal to a pathwise completenes of 1 and stepwise completeness of 1, as all enzymes are present.
+
+That being said, I decided to move on with the interactive heatmap for each of these consortia. For that, I had to do move the files from ARC to my local computer, so I could visualize the heatmap on my browser. These files included: `groups.txt`, `modules_heatmap.db`, and the metabolic pathwise and stepwise completeness for KOs, KOfams, Kegg Module, Kegg Brite, etc.
+
+Then, I loaded the files in an interactive mode:
+`anvi-interactive -d metabolic_output/metabolism-module_pathwise_completeness-MATRIX.txt -p modules_heatmap.db --manual --title "Kegg Module Pathwise Completeness"`
+
+After that, I first turn the phylogram into a dendrogram in the `Drawing Type` box. Then, I scrolled down past the 116 genome information, selected all in the box on the right in "Edit attributes for multiple layers", and change the 'Type' to Intensity, that way it shows a heatmap and not a bar plot. The numbers for min and max must remain as 0 and 1, as these are percentage values, and the box colors were white (left) and black (right). After that, I saved the heatmap as 'default', and headed back to the terminal to include a dendrogram organizing my Kegg Modules and adding the metadata (consortia):
+
+`anvi-import-misc-data -p modules_heatmap.db -t layers groups.txt`
+
+`anvi-matrix-to-newick FMT_MAG_metabolism-module_pathwise_completeness-MATRIX.txt -o module_organization.newick`
+
+`anvi-import-items-order -i module_organization.newick -p modules_heatmap.db --name module_organization`
+
+And finally, reload the anvi-interactive step described before. 
+
+After this, I went back to main and selected in the ITEMS tab the 'Module organization' order, that way it creates a dendrogram organizing my KOs (columns). Then I headed to DISPLAY, and adjusted my height to 200 and margin to 15. At this point, the Display should have a tab for my 'Group' 'layer' (is it layer?). And at the bottom I selected the colors for each consortia. In the OPTIONS tab, I ignored the 'Bins Selection' and 'Cosmetics', then changed the height to 300 and width to 20,000 in the DENDROGRAM tab. I also selected the height of the layers to 30, so I could easily visualize the colours of each consortia. I also selected the 'ignore branch lengths' so I could see the dendrogram more clearly. Oh, right, and I also selected 'Draw for every other leaf' option in the Draw Guide Lines so I could see where each leaf is pointing.
+
+
+
+
+
+
 
 
