@@ -325,6 +325,8 @@ As a side note, th external genomes file (name_and_path_to_contigs.txt) is also 
 
 `for function in {KOfam,KEGG_Module,KEGG_Class,KEGG_BRITE}; do anvi-compute-functional-enrichment-across-genomes -e name_and_path_to_contigs.txt -o functional_enrichment_consortia_${function}.tsv -G groups.txt --annotation-source ${function} -F ${function}_consortia_contribution.tsv; done;`
 
+Its <ins>FUNDAMENTAL</ins> to know the difference between two similar functions in Anvi'o. `anvi-compute-functional-enrichment-across-genomes` using KEGG_Module and Groups.txt, will compare the number of counts of genes associated/labeled to specific modules, and then it will compare if any differences exist between the genome groups. This can be repeated across multiple functions (as shown below) and annotation sources. On the other hand, `anvi-compute-metabolic-enrichment` will look at the level of completeness of pathways between genome groups, answering the question "Which pathways are more complete between groups?". This can be broken down in pathwise analysis and stepwise analysis. 
+
 Which gave me the files with the p-values and adjusted p-values for all consortia: 
 ```
 functional_enrichment_consortia_KEGG_BRITE.tsv
